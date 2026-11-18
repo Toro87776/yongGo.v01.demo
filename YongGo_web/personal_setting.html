@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YongGO 養狗 - 我的頁面</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 FontAwesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts 圓潤字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#2f5537', // 主色 墨綠
+                            light: '#e4edd1',   // 輔色 淺粉綠
+                            cream: '#fffcf4',   // 淺粉黃 (背景)
+                            pinkSoft: '#F9D3CE',// 淺粉紅
+                            pink: '#F19689',    // 粉紅 (重要資訊/進度/按鈕)
+                            dark: '#1e3824'
+                        }
+                    },
+                    borderRadius: {
+                        'app': '24px',
+                        'app-sm': '16px'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #dce5da;
+            color: #2f5537;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* 手機容器規畫 (無外框圓角、無上下邊距，760px 以下滿版流暢顯示) */
+        .app-viewport {
+            width: 100%;
+            max-width: 480px;
+            height: 100dvh;
+            margin: 0 auto;
+            background-color: #fffcf4;
+            position: relative;
+            box-shadow: 0 0 24px rgba(33, 61, 39, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        @media (max-width: 760px) {
+            .app-viewport {
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+
+        .app-viewport > header,
+        .app-viewport > section {
+            flex: 0 0 auto;
+        }
+
+        .app-viewport > main {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .app-viewport > main::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 夜間模式 Dark Mode CSS */
+        .dark-mode {
+            background-color: #121d14 !important;
+            color: #e4edd1 !important;
+        }
+        .dark-mode .app-viewport {
+            background-color: #1a291d !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .dark-mode header,
+        .dark-mode nav {
+            background-color: #162319 !important;
+            border-color: rgba(228, 237, 209, 0.1) !important;
+        }
+        .dark-mode .bg-white {
+            background-color: #233627 !important;
+            border-color: rgba(228, 237, 209, 0.15) !important;
+        }
+        .dark-mode .bg-brand-cream {
+            background-color: #1e2f22 !important;
+        }
+        .dark-mode input, .dark-mode select {
+            background-color: #162319 !important;
+            color: #e4edd1 !important;
+            border-color: rgba(228, 237, 209, 0.2) !important;
+        }
+        .dark-mode .text-brand {
+            color: #e4edd1 !important;
+        }
+
+        /* Toggle Accordion 平滑動畫 */
+        .toggle-content {
+            max-height: 1000px;
+            opacity: 1;
+            overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.3s ease;
+        }
+        .toggle-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .rotate-arrow {
+            transition: transform 0.3s ease;
+        }
+        .rotate-arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        /* 觸控微回饋 */
+        .touch-active:active {
+            transform: scale(0.97);
+            transition: transform 0.1s ease;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen">
+
+    <div id="app-viewport" class="app-viewport">
+        
+        <!-- 頂部 Header 區 -->
+        <header class="px-5 pt-6 pb-3 bg-[#fffcf4] border-b border-brand/5 sticky top-0 z-40 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-6">
+                    <img src="./image/logo-s.png" alt="YongGO Logo" class="w-full h-full object-contain">
+                </div>
+                <h1 class="text-xl font-black text-brand tracking-tight">個人與設定</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="clearAllSettings()" class="text-xs font-black text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-full shadow-2xs touch-active flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-trash-can text-[10px]"></i> 清空資料
+                </button>
+                <button onclick="saveAllSettings()" class="text-xs font-black text-white bg-brand hover:bg-brand-dark px-3.5 py-1.5 rounded-full shadow-2xs touch-active flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-floppy-disk text-[10px]"></i> 儲存修改
+                </button>
+            </div>
+        </header>
+
+        <!-- 個人名片頭像頂部區域 -->
+        <section class="px-5 pt-4 pb-2">
+            <div class="bg-brand text-white p-4 rounded-app shadow-md flex items-center space-x-4 relative overflow-hidden">
+                <!-- 背景狗狗腳印圖案裝飾 -->
+                <div class="absolute -right-3 -bottom-3 text-white/10 text-7xl pointer-events-none">
+                    <i class="fa-solid fa-paw"></i>
+                </div>
+
+                <!-- 飼主與狗狗雙頭像 -->
+                <div class="relative w-14 h-14 shrink-0">
+                    <div class="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-xs">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Alex" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full border-2 border-brand bg-brand-pinkSoft overflow-hidden shadow-xs">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=150&q=80" alt="薇寶" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <div class="flex-1 space-y-0.5">
+                    <div class="flex items-center gap-2">
+                        <h2 id="card-owner-name" class="text-base font-black">Alex</h2>
+                        <span class="text-[10px] bg-brand-pink text-white font-extrabold px-2 py-0.2 rounded-full">愛犬守護者</span>
+                    </div>
+                    <p id="card-dog-summary" class="text-xs text-brand-light/80 font-medium">狗狗：薇寶 (玩具紅貴賓)</p>
+                    <span id="card-owner-account" class="text-[10px] text-brand-cream/60 font-mono block">帳號：alex_doglover@yonggo.com</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主要內容區域 (垂直 Accordion 標題 Toggle 排版) -->
+        <main class="px-5 py-3 space-y-4 flex-1">
+
+            <!-- 1. 個人帳號與資料 (Toggle 垂直排版) -->
+            <section class="bg-white rounded-app border border-brand-light shadow-2xs overflow-hidden">
+                <!-- 標題列 Clickable Toggle -->
+                <div onclick="toggleSection('sec-personal')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-brand-cream/50 transition-colors">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-full bg-brand-light text-brand flex items-center justify-center text-sm font-black">
+                            <i class="fa-regular fa-user"></i>
+                        </div>
+                        <h3 class="text-sm font-black text-brand">個人帳號與資料</h3>
+                    </div>
+                    <i id="arrow-sec-personal" class="fa-solid fa-chevron-down text-brand/50 text-xs rotate-arrow"></i>
+                </div>
+
+                <!-- 內容欄位表單 -->
+                <div id="sec-personal" class="toggle-content px-4 pb-4 space-y-3 pt-1 border-t border-brand/5">
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-extrabold text-brand/70 block">飼主名字 / 暱稱</label>
+                        <input id="input-owner-name" type="text" value="Alex" placeholder="請輸入名字或暱稱" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-extrabold text-brand/70 block">性別</label>
+                            <select id="input-owner-gender" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                                <option value="">請選擇</option>
+                                <option value="male" selected>男</option>
+                                <option value="female">女</option>
+                                <option value="other">不公開</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-extrabold text-brand/70 block">星座</label>
+                            <select id="input-owner-zodiac" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                                <option value="">請選擇</option>
+                                <option value="leo" selected>獅子座 ♌</option>
+                                <option value="aries">牡羊座 ♈</option>
+                                <option value="taurus">金牛座 ♉</option>
+                                <option value="gemini">雙子座 ♊</option>
+                                <option value="cancer">巨蟹座 ♋</option>
+                                <option value="virgo">處女座 ♍</option>
+                                <option value="libra">天秤座 ♎</option>
+                                <option value="scorpio">天蠍座 ♏</option>
+                                <option value="sagittarius">射手座 ♐</option>
+                                <option value="capricorn">摩羯座 ♑</option>
+                                <option value="aquarius">水瓶座 ♒</option>
+                                <option value="pisces">雙魚座 ♓</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-extrabold text-brand/70 block">出生年月日</label>
+                        <input id="input-owner-birth" type="date" value="1995-08-12" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 狗狗檔案 (多犬支援) (Toggle 垂直排版) -->
+            <section class="bg-white rounded-app border border-brand-light shadow-2xs overflow-hidden">
+                <!-- 標題列 Clickable Toggle -->
+                <div onclick="toggleSection('sec-dog')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-brand-cream/50 transition-colors">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-full bg-brand-pinkSoft text-brand-pink flex items-center justify-center text-sm font-black">
+                            <i class="fa-solid fa-dog"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-brand">狗狗檔案 (多犬支援)</h3>
+                            <span id="current-dog-label" class="text-[10px] text-brand-pink font-bold">目前選擇：薇寶</span>
+                        </div>
+                    </div>
+                    <i id="arrow-sec-dog" class="fa-solid fa-chevron-down text-brand/50 text-xs rotate-arrow"></i>
+                </div>
+
+                <!-- 內容欄位表單 -->
+                <div id="sec-dog" class="toggle-content px-4 pb-4 space-y-3 pt-1 border-t border-brand/5">
+                    
+                    <!-- 多犬切換 Tabs -->
+                    <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar pt-1">
+                        <button onclick="switchDogProfile(document.getElementById('input-dog-name').value || '薇寶')" class="px-3 py-1 bg-brand text-white text-xs font-extrabold rounded-full shrink-0 shadow-2xs flex items-center gap-1">
+                            <i class="fa-solid fa-paw text-[10px]"></i> <span id="dog-tab-btn-text">薇寶</span>
+                        </button>
+                        <button onclick="triggerAction('新增第二隻狗狗檔案')" class="px-3 py-1 bg-brand-cream hover:bg-brand-light text-brand text-xs font-bold rounded-full shrink-0 border border-brand/15 flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-[10px]"></i> 新增狗狗
+                        </button>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-extrabold text-brand/70 block">名字 / 暱稱</label>
+                        <input id="input-dog-name" type="text" value="薇寶" placeholder="狗狗名字" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-extrabold text-brand/70 block">品種</label>
+                        <input id="input-dog-breed" type="text" value="玩具紅貴賓" placeholder="如：貴賓、柴犬" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-extrabold text-brand/70 block">晶片號碼</label>
+                        <input id="input-dog-chip" type="text" value="900073001114672" placeholder="請輸入15位晶片碼" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-mono font-bold text-brand focus:outline-none focus:border-brand">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-extrabold text-brand/70 block">出生年月日</label>
+                            <input id="input-dog-birth" type="date" value="2026-04-15" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-extrabold text-brand/70 block">血型</label>
+                            <select id="input-dog-blood" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                                <option value="">請選擇</option>
+                                <option value="unknown" selected>未知</option>
+                                <option value="dea11">DEA 1.1 陽性</option>
+                                <option value="dea12">DEA 1.2 陽性</option>
+                                <option value="dea7">DEA 7 陽性</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-extrabold text-brand/70 block">個性標籤</label>
+                        <input id="input-dog-trait" type="text" value="超級開朗" placeholder="描述狗狗的個性特色" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 通知與提醒設定 (Toggle 垂直排版) -->
+            <section class="bg-white rounded-app border border-brand-light shadow-2xs overflow-hidden">
+                <!-- 標題列 Clickable Toggle -->
+                <div onclick="toggleSection('sec-notification')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-brand-cream/50 transition-colors">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-black">
+                            <i class="fa-regular fa-bell"></i>
+                        </div>
+                        <h3 class="text-sm font-black text-brand">通知與提醒設定</h3>
+                    </div>
+                    <i id="arrow-sec-notification" class="fa-solid fa-chevron-down text-brand/50 text-xs rotate-arrow"></i>
+                </div>
+
+                <!-- 內容欄位 -->
+                <div id="sec-notification" class="toggle-content px-4 pb-4 space-y-3.5 pt-1 border-t border-brand/5">
+                    
+                    <!-- 提醒音效：選項 -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-extrabold text-brand block">提醒音效</span>
+                            <span class="text-[10px] text-gray-400 font-medium">訓練與健康日誌提示聲</span>
+                        </div>
+                        <select class="px-3 py-1.5 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none">
+                            <option value="bark" selected>狗狗汪汪聲 🐶</option>
+                            <option value="bell">溫和鈴聲 🔔</option>
+                            <option value="whistle">訓練哨音 🪈</option>
+                            <option value="mute">靜音 🔇</option>
+                        </select>
+                    </div>
+
+                    <!-- 震動：開/關 Switch -->
+                    <div class="flex items-center justify-between border-t border-brand/5 pt-3">
+                        <div>
+                            <span class="text-xs font-extrabold text-brand block">裝置震動提醒</span>
+                            <span class="text-[10px] text-gray-400 font-medium">推播通知時同步震動</span>
+                        </div>
+                        <!-- Toggle Switch -->
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="vibration-toggle" checked onchange="toggleVibration(this)" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                        </label>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 4. 偏好與使用設定 (夜間 / 日間模式切換) (Toggle 垂直排版) -->
+            <section class="bg-white rounded-app border border-brand-light shadow-2xs overflow-hidden">
+                <!-- 標題列 Clickable Toggle -->
+                <div onclick="toggleSection('sec-preference')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-brand-cream/50 transition-colors">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-black">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <h3 class="text-sm font-black text-brand">偏好與使用設定</h3>
+                    </div>
+                    <i id="arrow-sec-preference" class="fa-solid fa-chevron-down text-brand/50 text-xs rotate-arrow"></i>
+                </div>
+
+                <!-- 內容欄位 -->
+                <div id="sec-preference" class="toggle-content px-4 pb-4 space-y-3 pt-1 border-t border-brand/5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-extrabold text-brand block">主題視覺模式</span>
+                            <span class="text-[10px] text-gray-400 font-medium">切換 App 介面配色</span>
+                        </div>
+
+                        <!-- 日間 / 夜間 Mode 切換 Segment Control -->
+                        <div class="flex bg-brand-cream p-1 rounded-full border border-brand/15">
+                            <button id="theme-light-btn" onclick="setTheme('light')" class="px-3 py-1 text-xs font-extrabold rounded-full bg-brand text-white shadow-2xs transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-sun text-[10px]"></i> 日間
+                            </button>
+                            <button id="theme-dark-btn" onclick="setTheme('dark')" class="px-3 py-1 text-xs font-bold rounded-full text-brand/70 hover:text-brand transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-moon text-[10px]"></i> 夜間
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 登出與安全按鈕 -->
+            <div class="pt-2 text-center">
+                <button onclick="location.href='loggin.html'" class="text-xs font-bold text-gray-400 hover:text-brand-pink transition-colors">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> 登出 YongGO 養狗帳號
+                </button>
+            </div>
+
+        </main>
+
+        <!-- 固定底部 Navigation (深綠色 Icon 5區: 首頁｜訓練｜紀錄｜AI助教｜我的) -->
+        <nav class="shrink-0 w-full bg-white border-t border-gray-100 px-3 py-2 flex justify-around items-center z-50 rounded-t-2xl shadow-lg">
+            
+            <button onclick="location.href='index.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors">
+                <i class="fa-solid fa-house text-xl mb-0.5"></i>
+                <span class="text-[11px]">首頁</span>
+            </button>
+
+            <button onclick="location.href='training_center.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors">
+                <i class="fa-solid fa-bone text-xl mb-0.5"></i>
+                <span class="text-[11px]">訓練</span>
+            </button>
+
+            <button onclick="location.href='healthjourney.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors">
+                <i class="fa-regular fa-clipboard text-xl mb-0.5"></i>
+                <span class="text-[11px]">紀錄</span>
+            </button>
+
+            <button onclick="location.href='ai_chat.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors relative">
+                <i class="fa-solid fa-robot text-xl mb-0.5"></i>
+                <span class="text-[11px]">AI助教</span>
+                <span class="absolute top-1 right-3 w-2 h-2 bg-brand-pink rounded-full"></span>
+            </button>
+
+            <!-- 5. 我的 (Active) -->
+            <button onclick="location.href='personal_setting.html'" class="flex flex-col items-center py-1 px-3 text-brand font-black">
+                <i class="fa-solid fa-user text-xl mb-0.5"></i>
+                <span class="text-[11px]">我的</span>
+            </button>
+
+        </nav>
+
+    </div>
+
+    <!-- 自訂軟圓彈窗對話框 -->
+    <div id="app-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
+        <div id="modal-card" class="bg-[#fffcf4] rounded-app p-5 w-4/5 max-w-xs text-center shadow-2xl border-2 border-brand-light transform scale-90 transition-transform duration-200">
+            <div class="w-12 h-12 bg-brand-light text-brand rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-paw"></i>
+            </div>
+            <h4 id="modal-title" class="text-base font-extrabold text-brand mb-1.5">提示</h4>
+            <p id="modal-msg" class="text-xs text-gray-600 mb-5 font-medium leading-relaxed">訊息內容...</p>
+            <button onclick="closeAppModal()" class="w-full py-2.5 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-app-sm shadow-sm touch-active">
+                我知道了
+            </button>
+        </div>
+    </div>
+
+    <!-- 全域資料同步與頁面互動邏輯 JS -->
+    <script src="script.js"></script>
+    <script>
+        // 標題 Accordion Toggle 控制
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const arrow = document.getElementById('arrow-' + sectionId);
+
+            content.classList.toggle('collapsed');
+            arrow.classList.toggle('collapsed');
+        }
+
+        // 切換日間 / 夜間主題 Mode
+        function setTheme(mode) {
+            const body = document.body;
+            const btnLight = document.getElementById('theme-light-btn');
+            const btnDark = document.getElementById('theme-dark-btn');
+
+            if (mode === 'dark') {
+                body.classList.add('dark-mode');
+                btnDark.className = 'px-3 py-1 text-xs font-extrabold rounded-full bg-brand text-white shadow-2xs transition-all flex items-center gap-1';
+                btnLight.className = 'px-3 py-1 text-xs font-bold rounded-full text-brand/70 hover:text-brand transition-all flex items-center gap-1';
+                showAppModal('夜間模式', '已切換至夜間舒適保護模式 🌙');
+            } else {
+                body.classList.remove('dark-mode');
+                btnLight.className = 'px-3 py-1 text-xs font-extrabold rounded-full bg-brand text-white shadow-2xs transition-all flex items-center gap-1';
+                btnDark.className = 'px-3 py-1 text-xs font-bold rounded-full text-brand/70 hover:text-brand transition-all flex items-center gap-1';
+                showAppModal('日間模式', '已切換至明亮日間模式 ☀️');
+            }
+        }
+
+        // 切換多犬檔案
+        function switchDogProfile(dogName) {
+            showAppModal('狗狗檔案切換', `已切換顯示「${dogName}」的詳細資料！`);
+        }
+
+        // 震動 Toggle 提示
+        function toggleVibration(checkbox) {
+            if (checkbox.checked) {
+                showAppModal('提醒設定', '已開啟推播震動提醒 📳');
+            } else {
+                showAppModal('提醒設定', '已關閉震動提醒');
+            }
+        }
+
+        // 儲存修改並寫入共用 localStorage
+        function saveAllSettings() {
+            const ownerName = document.getElementById('input-owner-name').value.trim() || 'Alex';
+            const ownerGender = document.getElementById('input-owner-gender').value;
+            const ownerZodiac = document.getElementById('input-owner-zodiac').value;
+            const ownerBirth = document.getElementById('input-owner-birth').value;
+            const dogName = document.getElementById('input-dog-name').value.trim() || '薇寶';
+            const dogBreed = document.getElementById('input-dog-breed').value.trim() || '玩具紅貴賓';
+            const dogChip = document.getElementById('input-dog-chip').value.trim();
+            const dogBirth = document.getElementById('input-dog-birth').value;
+            const dogBlood = document.getElementById('input-dog-blood').value;
+            const dogTrait = document.getElementById('input-dog-trait').value.trim();
+
+            if (typeof saveYongGoProfile === 'function') {
+                const current = getYongGoProfile();
+                const updatedTraits = dogTrait
+                    ? [dogTrait, ...(current.traits || []).filter(t => t !== dogTrait)].slice(0, 10)
+                    : current.traits;
+                saveYongGoProfile({
+                    userName: ownerName,
+                    userGender: ownerGender,
+                    userZodiac: ownerZodiac,
+                    userBirth: ownerBirth,
+                    dogName: dogName,
+                    breed: dogBreed,
+                    dogChip: dogChip,
+                    dogBirth: dogBirth,
+                    dogBlood: dogBlood,
+                    dogPersonality: dogTrait,
+                    traits: updatedTraits
+                });
+            }
+            showAppModal('儲存完成', `已成功更新「${ownerName}」與狗狗「${dogName}（${dogBreed}）」的資料，並已同步至所有頁面！`);
+        }
+
+        // 清空個人與狗狗資料並同步至共用 localStorage
+        function clearAllSettings() {
+            if (typeof clearYongGoProfile === 'function') {
+                clearYongGoProfile();
+            } else {
+                ['input-owner-name', 'input-owner-gender', 'input-owner-zodiac', 'input-owner-birth',
+                 'input-dog-name', 'input-dog-breed', 'input-dog-chip', 'input-dog-birth',
+                 'input-dog-blood', 'input-dog-trait'].forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+            }
+            showAppModal('已清空資料', '下方的個人帳號與狗狗檔案資料已全部清空！');
+        }
+
+        // 觸發動作提示
+        function triggerAction(actionName) {
+            showAppModal('操作提示', `您選擇了：${actionName}`);
+        }
+
+        // 顯示彈窗
+        function showAppModal(title, message) {
+            const modal = document.getElementById('app-modal');
+            const card = document.getElementById('modal-card');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-msg').textContent = message;
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        // 關閉彈窗
+        function closeAppModal() {
+            const modal = document.getElementById('app-modal');
+            const card = document.getElementById('modal-card');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+    </script>
+</body>
+</html>

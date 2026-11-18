@@ -1,0 +1,76 @@
+
+/*  (專為 767px 以下設計) */
+        @media (min-width: 768px) {
+            body {
+                font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                color: #2F533C; 
+                background-color: #FFFCF4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                padding: 20px 0;
+            }
+            .mobile-container {
+                max-width: 420px;
+                height: 844px;
+                min-height: auto;
+                border-radius: 40px;
+                overflow: hidden;
+                border: 8px solid #1e3627;
+            }
+             /* 手機優先設計 (Mobile-First Structure) */
+            .mobile-container {
+                width: 100%;
+                min-height: 100vh;
+                max-width: 420px;
+                margin: 0 auto;
+                background: #FFFCF4;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                box-shadow: 0 0 25px rgba(47, 83, 60, 0.08);
+            }
+            /* 按鈕與主題色樣式 */
+            .bg-brand {
+                background-color: #2F533C;
+            }
+            .bg-brand-light {
+                background-color: #E4EDD1;
+            }
+            .bg-brand-cream {
+                background-color: #FFFCF4;
+            }
+            .text-brand {
+                color: #2F533C;
+            }
+            .border-brand {
+                border-color: #2F533C;
+            }
+            .btn-shadow {
+                box-shadow: 0 4px 14px 0 rgba(47, 83, 60, 0.25);
+            }
+            .btn-google-shadow {
+                box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
+            }
+            /* 標籤頁過渡 */
+            .tab-active {
+                color: #2F533C;
+                border-bottom: 3px solid #2F533C;
+                font-weight: 900;
+            }
+            /* 輪廓圓潤框 input聚焦效果 */
+            .custom-input {
+                transition: all 0.2s ease-in-out;
+                background-color: #ffffff;
+                border: 1.5 solid #E4EDD1;
+            }
+            .custom-input:focus-within {
+                border-color: #2F533C;
+                box-shadow: 0 0 0 3px rgba(47, 83, 60, 0.15);
+            }
+
+        }
+
+       

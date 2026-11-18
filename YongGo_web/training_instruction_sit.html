@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YongGO 養狗 - 坐下訓練指引</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#2f553c',
+                            light: '#e4edd1',
+                            cream: '#fffcf4',
+                            ink: '#393939'
+                        }
+                    },
+                    borderRadius: {
+                        'app': '24px',
+                        'app-sm': '16px'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #dce5da;
+            color: #393939;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-viewport {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100dvh;
+            margin: 0 auto;
+            background-color: #fffcf4;
+            position: relative;
+            box-shadow: 0 0 24px rgba(47, 85, 60, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 760px) {
+            .app-viewport {
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+
+        .hero-gradient-card {
+            background: linear-gradient(135deg, #e4edd1 0%, #f3f7e8 55%, #ffffff 100%);
+        }
+
+        .start-bar-btn {
+            background: linear-gradient(90deg, #FF816F 0%, #FF6852 80%, #FF6852 100%);
+            box-shadow: 0 8px 20px rgba(255, 104, 82, 0.32);
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .start-bar-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 4px 10px rgba(255, 104, 82, 0.25);
+        }
+
+        .touch-active:active {
+            transform: scale(0.96);
+            transition: transform 0.12s ease;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-start min-h-screen">
+    <div class="app-viewport">
+        <!-- 頂部 Header -->
+        <header class="px-5 pt-6 pb-3 flex items-center justify-between bg-[#fffcf4] sticky top-0 z-30">
+            <button type="button" onclick="if (history.length > 1) { history.back(); } else { location.href='training_center.html'; }" aria-label="返回" class="w-10 h-10 rounded-full bg-white border border-[#e4edd1] shadow-xs flex items-center justify-center text-[#2f553c] touch-active">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </button>
+            <h1 class="text-xl font-black text-[#393939] text-center flex-1 tracking-tight">坐下</h1>
+            <div class="w-10 h-10" aria-hidden="true"></div>
+        </header>
+
+        <!-- 主要內容 -->
+        <main class="px-5 pt-2 pb-28 space-y-6 flex-1">
+            <!-- 區塊 0：坐下示範影片 (400x400px) -->
+            <section class="flex justify-center">
+                <div class="relative w-full max-w-[400px] aspect-square rounded-app overflow-hidden shadow-sm border border-[#e4edd1] bg-[#2f553c]/10">
+                    <video id="sit-video" src="./video/sit.mp4" class="w-full h-full object-cover cursor-pointer" playsinline controls preload="metadata"></video>
+                    <button type="button" id="video-play-overlay" onclick="playSitVideo()" aria-label="播放坐下示範影片" class="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors cursor-pointer">
+                        <span class="w-16 h-16 rounded-full bg-[#FF6852] text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95">
+                            <i class="fa-solid fa-play text-2xl ml-1"></i>
+                        </span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 區塊 1：漸層摘要卡 -->
+            <section class="hero-gradient-card rounded-app p-4 shadow-sm border border-[#e4edd1] space-y-3.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-[#2f553c] text-white flex items-center justify-center shadow-xs shrink-0">
+                        <i class="fa-solid fa-flag-checkered text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-[#2f553c] block">本次訓練</span>
+                        <p class="text-base font-black text-[#393939] leading-snug">簡短、清楚，一起完成</p>
+                    </div>
+                </div>
+
+                <!-- 持續時間 & 重複次數 -->
+                <div class="bg-white rounded-app-sm py-3 px-4 grid grid-cols-2 items-center shadow-2xs border border-[#e4edd1]/70">
+                    <div class="flex items-center gap-2.5 pr-3 border-r border-gray-200">
+                        <i class="fa-regular fa-clock text-[#2f553c] text-base shrink-0"></i>
+                        <div>
+                            <span class="text-[11px] text-[#393939]/70 font-bold block">持續時間</span>
+                            <span class="text-sm font-black text-[#393939]">5–8 min</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5 pl-4">
+                        <i class="fa-solid fa-paw text-[#2f553c] text-base shrink-0"></i>
+                        <div>
+                            <span class="text-[11px] text-[#393939]/70 font-bold block">重複次數</span>
+                            <span class="text-sm font-black text-[#393939]">2-3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 你需要 -->
+                <div class="flex items-center justify-between px-1 pt-0.5">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-[#e4edd1] text-[#2f553c] flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-bone"></i>
+                        </div>
+                        <span class="text-xs font-bold text-[#393939]/75">你需要</span>
+                    </div>
+                    <span class="text-sm font-black text-[#393939]">小顆零食</span>
+                </div>
+            </section>
+
+            <!-- 區塊 2：快速解釋 -->
+            <section class="space-y-2">
+                <div class="px-1">
+                    <h2 class="text-lg font-black text-[#393939]">快速解釋</h2>
+                </div>
+                <div class="bg-white rounded-app-sm p-4 shadow-2xs border border-[#e4edd1]">
+                    <p class="text-sm text-[#393939] leading-relaxed font-medium">
+                        「坐下」是日常訓練，可用於吃飯、問候和繫牽繩。目標是聽一次指令主動坐下，而不是累了才塌坐。
+                    </p>
+                </div>
+            </section>
+
+            <!-- 區塊 3：簡單步驟 (白色獨立區塊) -->
+            <section class="bg-white rounded-app p-4 shadow-2xs border border-[#e4edd1] space-y-4">
+                <div class="flex items-center gap-2 text-[#2f553c]">
+                    <i class="fa-solid fa-route text-sm"></i>
+                    <h2 class="text-sm font-black">4個簡單步驟</h2>
+                </div>
+
+                <div class="relative space-y-4 pl-1">
+                    <!-- 步驟連接線 -->
+                    <div class="absolute left-[15px] top-4 bottom-4 w-0.5 bg-[#e4edd1]" aria-hidden="true"></div>
+
+                    <div class="relative flex items-start gap-3">
+                        <span class="w-7 h-7 rounded-full bg-[#2f553c] text-white text-xs font-black flex items-center justify-center shrink-0 z-10 shadow-2xs">1</span>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pt-0.5">準備小飼料，靠近狗狗時將先讓他聞飼料引誘，手往上移動在牠頭上，狗狗會因抬頭順勢坐下。。</p>
+                    </div>
+
+                    <div class="relative flex items-start gap-3">
+                        <span class="w-7 h-7 rounded-full bg-[#e4edd1] text-[#2f553c] text-xs font-black flex items-center justify-center shrink-0 z-10 shadow-2xs">2</span>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pt-0.5">坐下的瞬間馬上說「好棒」稱讚，並趁牠坐著時給它飼料。</p>
+                    </div>
+
+                    <div class="relative flex items-start gap-3">
+                        <span class="w-7 h-7 rounded-full bg-[#e4edd1] text-[#2f553c] text-xs font-black flex items-center justify-center shrink-0 z-10 shadow-2xs">3</span>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pt-0.5">你後退一步讓牠站起，再次引導(回到第一步)。</p>
+                    </div>
+
+                    <div class="relative flex items-start gap-3">
+                        <span class="w-7 h-7 rounded-full bg-[#e4edd1] text-[#2f553c] text-xs font-black flex items-center justify-center shrink-0 z-10 shadow-2xs">4</span>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pt-0.5">臀部開始下降時只說一次「坐下」，再說一次「好棒」稱讚。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 區塊 4：專家提示 (預設收合下拉式選單) -->
+            <section class="bg-white rounded-app shadow-2xs border border-[#e4edd1] overflow-hidden">
+                <button type="button" id="expert-notes-toggle" onclick="toggleExpertNotes()" aria-expanded="false" class="w-full p-4 flex items-center justify-between text-left hover:bg-[#e4edd1]/25 transition-colors focus:outline-none">
+                    <div>
+                        <h2 class="text-base font-black text-[#2f553c]">專家提示</h2>
+                        <p class="text-xs font-bold text-[#393939]/65 mt-0.5">教練的方法、提示與問題排除</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-[#e4edd1] text-[#2f553c] flex items-center justify-center shrink-0 transition-transform duration-200" id="expert-notes-arrow">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </button>
+
+                <div id="expert-notes-content" class="hidden px-4 pb-4 space-y-4 border-t border-[#e4edd1]">
+                    <!-- 訓練準備 -->
+                    <div class="pt-3.5 space-y-1">
+                        <div class="flex items-center gap-2 text-xs font-black text-[#2f553c]">
+                            <i class="fa-regular fa-clipboard"></i>
+                            <span>訓練準備</span>
+                        </div>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pl-[20px]">
+                            準備豌豆大小的飼料，在安靜的房間訓練，可選擇使用牽繩。做2組，做完一組休息30秒。
+                        </p>
+                    </div>
+
+                    <!-- 今日目標 -->
+                    <div class="pt-3 border-t border-gray-100 space-y-1">
+                        <div class="flex items-center gap-2 text-xs font-black text-[#2f553c]">
+                            <i class="fa-solid fa-flag"></i>
+                            <span>今日目標</span>
+                        </div>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pl-[20px]">
+                            今日達標：只說一次指令，4次中有1次能在2秒內坐下，不要強壓狗狗臀部。
+                        </p>
+                    </div>
+
+                    <!-- 提示 -->
+                    <div class="pt-3 border-t border-gray-100 space-y-1">
+                        <div class="flex items-center gap-2 text-xs font-black text-[#2f553c]">
+                            <i class="fa-regular fa-lightbulb"></i>
+                            <span>提示</span>
+                        </div>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pl-[20px]">
+                            指令只說一次，然後等待2秒。反覆說「坐、坐、坐」會讓狗狗困惑。
+                        </p>
+                    </div>
+
+                    <!-- 常見錯誤 -->
+                    <div class="pt-3 border-t border-gray-100 space-y-1">
+                        <div class="flex items-center gap-2 text-xs font-black text-[#2f553c]">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>常見錯誤</span>
+                        </div>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pl-[20px]">
+                            按壓臀部或把零食舉得太高，容易讓狗狗跳起或坐歪。放慢引導動作，並在坐下的位置給獎勵。
+                        </p>
+                    </div>
+
+                    <!-- 遇到困難時 -->
+                    <div class="pt-3 border-t border-gray-100 space-y-1">
+                        <div class="flex items-center gap-2 text-xs font-black text-[#2f553c]">
+                            <i class="fa-solid fa-wrench"></i>
+                            <span>遇到困難時</span>
+                        </div>
+                        <p class="text-sm text-[#393939] leading-relaxed font-medium pl-[20px]">
+                            如果牠跳起來，就把零食放低，哪怕動作不完美，也先獎勵他一次。如果牠站著不動，就更慢地把零食移靠近肩膀上方。
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部大條開始訓練按鈕 -->
+        <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] px-5 pb-5 pt-3 bg-gradient-to-t from-[#fffcf4] via-[#fffcf4]/95 to-transparent z-40">
+            <a href="countdown.html" class="start-bar-btn w-full py-3.5 rounded-full flex items-center justify-center text-base font-black text-white tracking-wider no-underline">
+                開始訓練
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function toggleExpertNotes() {
+            const content = document.getElementById('expert-notes-content');
+            const arrow = document.getElementById('expert-notes-arrow');
+            const toggleBtn = document.getElementById('expert-notes-toggle');
+            const isHidden = content.classList.toggle('hidden');
+            arrow.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+            toggleBtn.setAttribute('aria-expanded', String(!isHidden));
+        }
+
+        const sitVideo = document.getElementById('sit-video');
+        const playOverlay = document.getElementById('video-play-overlay');
+
+        function playSitVideo() {
+            if (!sitVideo) return;
+            sitVideo.play();
+        }
+
+        if (sitVideo && playOverlay) {
+            sitVideo.addEventListener('play', () => playOverlay.classList.add('hidden'));
+            sitVideo.addEventListener('pause', () => playOverlay.classList.remove('hidden'));
+            sitVideo.addEventListener('ended', () => playOverlay.classList.remove('hidden'));
+            sitVideo.addEventListener('click', () => {
+                if (sitVideo.paused) sitVideo.play();
+                else sitVideo.pause();
+            });
+        }
+    </script>
+</body>
+</html>

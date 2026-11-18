@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YongGO 養狗 - 健康紀錄頁面</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 FontAwesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts 圓潤字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#2f5537', // 主色 墨綠
+                            light: '#e4edd1',   // 輔色 淺粉綠
+                            cream: '#fffcf4',   // 淺粉黃 (背景)
+                            pinkSoft: '#F9D3CE',// 淺粉紅
+                            pink: '#F19689',    // 粉紅 (重要資訊/進度/按鈕)
+                            dark: '#1e3824'
+                        }
+                    },
+                    borderRadius: {
+                        'app': '24px',
+                        'app-sm': '16px'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #dce5da;
+            color: #2f5537;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 手機容器規畫 (無外框圓角、無上下邊距，760px 以下滿版流暢顯示) */
+        .app-viewport {
+            width: 100%;
+            max-width: 480px;
+            height: 100dvh;
+            margin: 0 auto;
+            background-color: #fffcf4;
+            position: relative;
+            box-shadow: 0 0 24px rgba(33, 61, 39, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 0;
+        }
+
+        @media (max-width: 760px) {
+            .app-viewport {
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+
+        .app-viewport > header {
+            flex: 0 0 auto;
+        }
+
+        .app-viewport > main {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .app-viewport > main::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 隱藏滾動條 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 互動微動畫與按鈕點擊加深放大 UX */
+        button, [onclick], label.cursor-pointer {
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease, filter 0.18s ease;
+        }
+        .touch-active:active, button:active {
+            transform: scale(0.95);
+        }
+        /* 基本標示選項按鈕：依據各別指定色碼設定 icon、hover border、click bg-color */
+        .record-tag-btn {
+            border-width: 1.5px;
+        }
+        .record-tag-btn i {
+            color: var(--tag-color) !important;
+            transition: color 0.18s ease;
+        }
+        .record-tag-btn:hover {
+            border-color: var(--tag-color) !important;
+        }
+        .record-tag-btn.is-selected {
+            background-color: var(--tag-color) !important;
+            border-color: var(--tag-color) !important;
+            color: #ffffff !important;
+            transform: scale(1.05) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14) !important;
+        }
+        .record-tag-btn.is-selected i,
+        .record-tag-btn.is-selected span {
+            color: #ffffff !important;
+        }
+        /* 月曆有寫入並儲存日誌時的粉黃色區塊（與背景粉黃色系一致） */
+        .cal-recorded-cream {
+            background-color: #fbf0d9 !important;
+            border: 1.5px solid #e8d2a6 !important;
+        }
+        .btn-selected-pink {
+            background-color: #e57c6e !important;
+            color: #ffffff !important;
+            border-color: #2f5537 !important;
+            transform: scale(1.14) !important;
+            box-shadow: 0 4px 12px rgba(241, 150, 137, 0.45) !important;
+        }
+        .sticker-btn-clicked {
+            background-color: #b5ce91 !important;
+            border: 2px solid #2f5537 !important;
+            transform: scale(1.18) !important;
+            box-shadow: 0 3px 8px rgba(47, 85, 55, 0.25) !important;
+        }
+        .btn-pulse-feedback {
+            transform: scale(1.08) !important;
+            filter: brightness(0.85) !important;
+            box-shadow: 0 4px 12px rgba(47, 85, 55, 0.25) !important;
+        }
+
+        /* 自訂 Range Slider 樣式 */
+        input[type=range] {
+            accent-color: #F19689;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen">
+    <div class="app-viewport">
+        
+        <!-- 動態保留高度之 Header 區塊 -->
+        <header class="px-5 pt-6 pb-3 flex items-center justify-between bg-[#fffcf4] sticky top-0 z-40 border-b border-brand/5">
+            <div class="flex items-center space-x-2">
+                <button onclick="location.href='index.html'" class="w-8 h-8 rounded-full bg-brand-light flex items-center justify-center text-brand touch-active" title="返回首頁">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </button>
+                <span class="text-xl font-black text-brand tracking-tight">健康日誌紀錄</span>
+            </div>
+
+            <!-- 右上雙圓形頭像 -->
+            <div onclick="location.href='personal_setting.html'" class="flex items-center -space-x-2 cursor-pointer touch-active" title="前往個人與設定">
+                <div class="w-9 h-9 rounded-full border-2 border-[#fffcf4] overflow-hidden shadow-sm bg-brand-light flex items-center justify-center relative z-10">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="飼主" class="w-full h-full object-cover">
+                </div>
+                <div class="w-9 h-9 rounded-full border-2 border-[#fffcf4] overflow-hidden shadow-sm bg-brand-pinkSoft flex items-center justify-center relative z-20">
+                    <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=150&q=80" alt="狗狗" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要內容區域 -->
+        <main class="px-5 py-4 space-y-5 flex-1">
+
+            <!-- 1. 月曆區 (簡約圓角風) -->
+            <section class="bg-white rounded-app p-4 shadow-sm border border-brand-light space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-extrabold text-brand text-base flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-days text-brand-pink"></i>
+                        <span id="calendar-month-title">2026年 11月</span>
+                    </h2>
+                    <div class="flex space-x-1">
+                        <button type="button" onclick="changeCalendarMonth(-1)" title="上個月" class="w-7 h-7 rounded-full bg-brand-light hover:bg-brand hover:text-white flex items-center justify-center text-brand text-xs transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button type="button" onclick="changeCalendarMonth(1)" title="下個月" class="w-7 h-7 rounded-full bg-brand-light hover:bg-brand hover:text-white flex items-center justify-center text-brand text-xs transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- 星期標題 -->
+                <div class="grid grid-cols-7 text-center text-xs font-bold text-brand/60 pb-1">
+                    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                </div>
+
+                <!-- 日期格子 (點擊會彈出標示紀錄 Popup，加高高度以容納 4px 標示圓點) -->
+                <div class="grid grid-cols-7 gap-1.5 text-center text-xs font-bold" id="calendar-grid">
+                    <div class="py-2 text-gray-300">26</div>
+                    <div class="py-2 text-gray-300">27</div>
+                    <div class="py-2 text-gray-300">28</div>
+                    <div class="py-2 text-gray-300">29</div>
+                    <div class="py-2 text-gray-300">30</div>
+                    <div data-date="11月1日" onclick="openDateModal('11月1日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">1</div>
+                    <div data-date="11月2日" onclick="openDateModal('11月2日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">2</div>
+
+                    <div data-date="11月3日" onclick="openDateModal('11月3日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">3</div>
+                    <div data-date="11月4日" onclick="openDateModal('11月4日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">4</div>
+                    <div data-date="11月5日" onclick="openDateModal('11月5日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">5</div>
+                    <div data-date="11月6日" onclick="openDateModal('11月6日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">6</div>
+                    <div data-date="11月7日" onclick="openDateModal('11月7日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">7</div>
+                    <div data-date="11月8日" onclick="openDateModal('11月8日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">8</div>
+                    <div data-date="11月9日" onclick="openDateModal('11月9日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">9</div>
+
+                    <div data-date="11月10日" onclick="openDateModal('11月10日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">10</div>
+                    <div data-date="11月11日" onclick="openDateModal('11月11日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">11</div>
+                    <!-- 當天 (點擊測試) -->
+                    <div id="today-date-cell" data-date="11月12日" onclick="openDateModal('11月12日')" class="py-2 bg-brand text-white rounded-full shadow-md cursor-pointer transform scale-105 transition-colors">12</div>
+                    <div data-date="11月13日" onclick="openDateModal('11月13日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">13</div>
+                    <div data-date="11月14日" onclick="openDateModal('11月14日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">14</div>
+                    <div data-date="11月15日" onclick="openDateModal('11月15日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">15</div>
+                    <div data-date="11月16日" onclick="openDateModal('11月16日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">16</div>
+
+                    <div data-date="11月17日" onclick="openDateModal('11月17日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">17</div>
+                    <div data-date="11月18日" onclick="openDateModal('11月18日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">18</div>
+                    <div data-date="11月19日" onclick="openDateModal('11月19日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">19</div>
+                    <div data-date="11月20日" onclick="openDateModal('11月20日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">20</div>
+                    <div data-date="11月21日" onclick="openDateModal('11月21日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">21</div>
+                    <div data-date="11月22日" onclick="openDateModal('11月22日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">22</div>
+                    <div data-date="11月23日" onclick="openDateModal('11月23日')" class="py-2 hover:bg-brand-light rounded-full cursor-pointer text-brand">23</div>
+                </div>
+            </section>
+
+            <!-- 4. 日誌區 (筆記本風格外觀) -->
+            <div class="bg-brand-cream border-2 border-brand-light rounded-app p-4 shadow-sm space-y-4 relative">
+                <div id="journal-date-badge" class="absolute top-0 right-6 transform -translate-y-1/2 bg-brand-pink text-white text-[10px] font-extrabold px-3 py-0.5 rounded-full shadow-2xs">
+                    今日日誌筆記
+                </div>
+
+                <!-- 5. 第一行水平排列：便便狀況 -->
+                <div class="flex items-center justify-between gap-3 bg-white p-3 rounded-app-sm border border-brand/5 shadow-2xs">
+                    <!-- 上傳照片區 (灰圖片icon) -->
+                    <label class="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400 cursor-pointer shrink-0 transition-colors">
+                        <i class="fa-regular fa-image text-lg"></i>
+                        <input type="file" accept="image/*" class="hidden">
+                    </label>
+                    <!-- 內容與拖曳條 -->
+                    <div class="flex-1 space-y-1">
+                        <div class="flex justify-between text-xs font-bold text-brand">
+                            <span>便便狀況</span>
+                            <span class="text-brand-pink" id="poop-status-text">正常</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-gray-400">正常</span>
+                            <input id="poop-range" type="range" min="0" max="100" value="20" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer" oninput="updatePoopStatus(this.value)">
+                            <span class="text-[10px] text-gray-400">不正常</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 第二行水平排列：食慾照片與狀況 -->
+                <div class="flex items-center justify-between gap-3 bg-white p-3 rounded-app-sm border border-brand/5 shadow-2xs">
+                    <!-- 上傳照片區 (灰圖片icon) -->
+                    <label class="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400 cursor-pointer shrink-0 transition-colors">
+                        <i class="fa-regular fa-image text-lg"></i>
+                        <input type="file" accept="image/*" class="hidden">
+                    </label>
+                    <!-- 食慾狀況｜拖曳條 -->
+                    <div class="flex-1 space-y-1">
+                        <div class="flex justify-between text-xs font-bold text-brand">
+                            <span>食慾狀況</span>
+                            <span class="text-brand" id="appetite-status-text">很好</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-gray-400">正常</span>
+                            <input id="appetite-range" type="range" min="0" max="100" value="10" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer" oninput="updateAppetiteStatus(this.value)">
+                            <span class="text-[10px] text-gray-400">不正常</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. 今日食量：表單輸入克數 -->
+                <div class="flex items-center justify-between bg-white p-3 rounded-app-sm border border-brand/5 shadow-2xs">
+                    <span class="text-xs font-bold text-brand flex items-center gap-1.5">
+                        <i class="fa-solid fa-bowl-food text-brand-pink"></i> 今日食量
+                    </span>
+                    <div class="flex items-center space-x-1.5">
+                        <input id="journal-food" type="number" placeholder="例如: 120" class="w-24 text-right px-2.5 py-1 text-xs bg-brand-cream border border-brand-light rounded-md font-bold text-brand focus:outline-none focus:border-brand-pink">
+                        <span class="text-xs font-bold text-brand">克</span>
+                    </div>
+                </div>
+
+                <!-- 7. 今日外觀：上傳照片區 -->
+                <div class="flex items-center justify-between bg-white p-3 rounded-app-sm border border-brand/5 shadow-2xs">
+                    <span class="text-xs font-bold text-brand flex items-center gap-1.5">
+                        <i class="fa-solid fa-camera-retro text-brand-pink"></i> 今日外觀照片
+                    </span>
+                    <label class="w-14 h-14 bg-gray-100 hover:bg-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400 cursor-pointer transition-colors">
+                        <i class="fa-regular fa-image text-xl"></i>
+                        <span class="text-[9px] mt-0.5">上傳</span>
+                        <input type="file" accept="image/*" class="hidden">
+                    </label>
+                </div>
+
+                <!-- 8. 寫字區 & 貼圖區選項 popup -->
+                <div class="bg-white p-3 rounded-app-sm border border-brand/5 space-y-2.5 shadow-2xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-brand">寫字與心情備忘</span>
+                        <!-- 貼圖觸發按鈕 -->
+                        <button id="sticker-toggle-btn" type="button" onclick="toggleStickerPopup(this)" class="text-xs bg-brand-pinkSoft text-brand-pink px-2.5 py-1 rounded-full font-bold flex items-center gap-1 hover:bg-brand-pink hover:text-white transition-all">
+                            <i class="fa-regular fa-face-smile"></i> 貼圖選單
+                        </button>
+                    </div>
+
+                    <!-- 記事文字框 -->
+                    <textarea id="journal-note" placeholder="寫下今天狗狗的可愛互動或身體狀況..." rows="3" class="w-full text-xs p-2.5 bg-brand-cream border border-brand-light rounded-md text-brand focus:outline-none focus:border-brand-pink resize-none"></textarea>
+
+                    <!-- 貼圖區選項 (選單：愛心、笑臉、便便、搗蛋鬼、哭臉、開心大笑、驚訝、太陽) -->
+                    <div id="sticker-menu" class="hidden flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
+                        <span class="text-[10px] text-gray-400 font-bold shrink-0">插入貼圖:</span>
+                        <button type="button" onclick="insertSticker('❤️', this)" title="愛心" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">❤️</button>
+                        <button type="button" onclick="insertSticker('😊', this)" title="笑臉" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">😊</button>
+                        <button type="button" onclick="insertSticker('💩', this)" title="便便" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">💩</button>
+                        <button type="button" onclick="insertSticker('😜', this)" title="搗蛋鬼" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">😜</button>
+                        <button type="button" onclick="insertSticker('😢', this)" title="哭臉" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">😢</button>
+                        <button type="button" onclick="insertSticker('😄', this)" title="開心大笑" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">😄</button>
+                        <button type="button" onclick="insertSticker('😮', this)" title="驚訝" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">😮</button>
+                        <button type="button" onclick="insertSticker('☀️', this)" title="太陽" class="w-8 h-8 shrink-0 rounded-full bg-brand-light flex items-center justify-center text-sm hover:scale-110 transition-transform">☀️</button>
+                    </div>
+                </div>
+
+                <!-- 9. 身高體重輸入區 (建議每週量一次) -->
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <!-- 身高 -->
+                    <div class="bg-white p-3 rounded-app-sm border border-brand/5 space-y-1">
+                        <span class="text-[11px] font-bold text-brand block">身高</span>
+                        <div class="flex items-center space-x-1">
+                            <input id="journal-height" type="number" placeholder="25" class="w-full px-2 py-1 text-xs bg-brand-cream border border-brand-light rounded-md font-bold text-brand focus:outline-none focus:border-brand-pink">
+                            <span class="text-xs font-bold text-brand">cm</span>
+                        </div>
+                    </div>
+                    <!-- 體重 -->
+                    <div class="bg-white p-3 rounded-app-sm border border-brand/5 space-y-1">
+                        <span class="text-[11px] font-bold text-brand block">體重 <span class="text-[9px] text-brand-pink font-normal">(每週量一次)</span></span>
+                        <div class="flex items-center space-x-1">
+                            <input id="journal-weight" type="number" placeholder="3200" class="w-full px-2 py-1 text-xs bg-brand-cream border border-brand-light rounded-md font-bold text-brand focus:outline-none focus:border-brand-pink">
+                            <span class="text-xs font-bold text-brand">克</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 儲存按鈕 -->
+                <button type="button" onclick="saveDailyJournal()" class="w-full py-3 bg-brand hover:bg-brand-dark text-white font-extrabold text-sm rounded-app-sm shadow-md touch-active">
+                    儲存今日日誌
+                </button>
+            </div>
+
+        </main>
+
+        <!-- 固定底部 Navigation (深綠色 Icon 5區) -->
+        <nav class="shrink-0 w-full bg-white border-t border-gray-100 px-3 py-2 flex justify-around items-center z-50 rounded-t-2xl shadow-lg">
+            <!-- 1. 首頁 -->
+            <button onclick="location.href='index.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors">
+                <i class="fa-solid fa-house text-xl mb-0.5"></i>
+                <span class="text-[11px]">首頁</span>
+            </button>
+            <!-- 2. 訓練 -->
+            <button onclick="location.href='training_center.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors">
+                <i class="fa-solid fa-bone text-xl mb-0.5"></i>
+                <span class="text-[11px]">訓練</span>
+            </button>
+            <!-- 3. 紀錄 (Active) -->
+            <button onclick="location.href='healthjourney.html'" class="flex flex-col items-center py-1 px-3 text-brand font-black">
+                <i class="fa-regular fa-clipboard text-xl mb-0.5"></i>
+                <span class="text-[11px]">紀錄</span>
+            </button>
+            <!-- 4. AI助教 -->
+            <button onclick="location.href='ai_chat.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors relative">
+                <i class="fa-solid fa-robot text-xl mb-0.5"></i>
+                <span class="text-[11px]">AI助教</span>
+                <span class="absolute top-1 right-3 w-2 h-2 bg-brand-pink rounded-full"></span>
+            </button>
+            <!-- 5. 我的 -->
+            <button onclick="location.href='personal_setting.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors">
+                <i class="fa-regular fa-user text-xl mb-0.5"></i>
+                <span class="text-[11px]">我的</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- 2. 點擊日期彈跳出的標示紀錄 Modal -->
+    <div id="date-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
+        <div id="date-modal-card" class="bg-[#fffcf4] rounded-app p-5 w-11/12 max-w-xs max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-brand-light transform scale-90 transition-transform duration-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-brand/10 pb-2">
+                <h4 id="modal-date-title" class="text-base font-extrabold text-brand">日期紀錄：11月12日</h4>
+                <button onclick="closeDateModal()" class="w-7 h-7 rounded-full bg-brand-light text-brand flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- 檢視當天日誌區塊 (改為下拉式選單，右側附帶 X刪除 按鈕) -->
+            <div id="modal-journal-section" class="hidden bg-white border-2 border-brand-pinkSoft rounded-app-sm p-3 space-y-2 shadow-2xs">
+                <div class="flex items-center gap-2">
+                    <div class="relative flex-1 min-w-0">
+                        <i class="fa-solid fa-book absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-brand-pink pointer-events-none"></i>
+                        <select id="modal-journal-select" onchange="renderSelectedJournalEntry()" class="w-full appearance-none bg-brand-cream border border-brand-pinkSoft rounded-lg pl-7 pr-7 py-1.5 text-xs font-extrabold text-brand-pink focus:outline-none focus:border-brand-pink cursor-pointer truncate">
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-brand-pink pointer-events-none"></i>
+                    </div>
+                    <button type="button" onclick="deleteDateJournalEntry()" class="shrink-0 px-2.5 py-1.5 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-200 rounded-lg text-xs font-extrabold flex items-center gap-1 transition-colors" title="刪除日誌">
+                        <i class="fa-solid fa-xmark"></i>
+                        <span>刪除</span>
+                    </button>
+                </div>
+                <div id="modal-journal-content" class="text-xs text-brand space-y-1.5 leading-relaxed pt-1 border-t border-brand-pinkSoft/60"></div>
+            </div>
+
+            <!-- 基本選項 (打疫苗 #4E9A5E、洗澡 #5B9BD5、看獸醫 #E06D65、異常狀況 #E5A93B) -->
+            <div class="space-y-2">
+                <span class="text-xs font-bold text-brand/70 block">基本標示選項</span>
+                <div class="grid grid-cols-2 gap-2" id="modal-tag-group">
+                    <button type="button" data-tag-id="vaccine" data-tag-label="打疫苗" data-tag-color="#4E9A5E" style="--tag-color: #4E9A5E;" onclick="toggleRecordItem(this)" class="record-tag-btn p-2.5 bg-white border border-brand-light rounded-app-sm flex items-center space-x-2 text-xs font-bold text-brand transition-all">
+                        <i class="fa-solid fa-syringe"></i> <span>打疫苗</span>
+                    </button>
+                    <button type="button" data-tag-id="bath" data-tag-label="洗澡" data-tag-color="#5B9BD5" style="--tag-color: #5B9BD5;" onclick="toggleRecordItem(this)" class="record-tag-btn p-2.5 bg-white border border-brand-light rounded-app-sm flex items-center space-x-2 text-xs font-bold text-brand transition-all">
+                        <i class="fa-solid fa-bath"></i> <span>洗澡</span>
+                    </button>
+                    <button type="button" data-tag-id="vet" data-tag-label="看獸醫" data-tag-color="#E06D65" style="--tag-color: #E06D65;" onclick="toggleRecordItem(this)" class="record-tag-btn p-2.5 bg-white border border-brand-light rounded-app-sm flex items-center space-x-2 text-xs font-bold text-brand transition-all">
+                        <i class="fa-solid fa-stethoscope"></i> <span>看獸醫</span>
+                    </button>
+                    <button type="button" data-tag-id="alert" data-tag-label="異常狀況" data-tag-color="#E5A93B" style="--tag-color: #E5A93B;" onclick="toggleRecordItem(this)" class="record-tag-btn p-2.5 bg-white border border-brand-light rounded-app-sm flex items-center space-x-2 text-xs font-bold text-brand transition-all">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <span>異常狀況</span>
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" onclick="saveDateModalTags()" class="w-full py-2.5 bg-brand text-white font-bold text-xs rounded-app-sm shadow-sm touch-active">
+                儲存標示
+            </button>
+        </div>
+    </div>
+
+    <!-- 通用提示彈窗 -->
+    <div id="app-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
+        <div id="modal-card" class="bg-[#fffcf4] rounded-app p-5 w-4/5 max-w-xs text-center shadow-2xl border-2 border-brand-light transform scale-90 transition-transform duration-200">
+            <div class="w-12 h-12 bg-brand-light text-brand rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-paw"></i>
+            </div>
+            <h4 id="modal-title" class="text-base font-extrabold text-brand mb-1.5">提示</h4>
+            <p id="modal-msg" class="text-xs text-gray-600 mb-5 font-medium leading-relaxed">訊息內容...</p>
+            <button onclick="closeAppModal()" class="w-full py-2.5 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-app-sm shadow-sm touch-active">
+                我知道了
+            </button>
+        </div>
+    </div>
+
+    <!-- 全域資料同步與頁面互動 JavaScript -->
+    <script src="script.js"></script>
+    <script>
+        const JOURNAL_STORAGE_KEY = 'yonggo_daily_journals_v1';
+        const DATE_TAGS_STORAGE_KEY = 'yonggo_date_tags_v1';
+        const nowDate = new Date();
+        const todayYear = nowDate.getFullYear();
+        const todayMonth = nowDate.getMonth() + 1;
+        const todayDay = nowDate.getDate();
+        const TODAY_DATE_STR = `${todayMonth}月${todayDay}日`;
+        let currentCalYear = todayYear;
+        let currentCalMonth = todayMonth; // 1 ~ 12
+        let activeModalDateStr = TODAY_DATE_STR;
+
+        function getSavedDateTags() {
+            try {
+                const raw = localStorage.getItem(DATE_TAGS_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        // 切換上個月 / 下個月並重新渲染月曆
+        function changeCalendarMonth(delta) {
+            currentCalMonth += delta;
+            if (currentCalMonth < 1) {
+                currentCalMonth = 12;
+                currentCalYear -= 1;
+            } else if (currentCalMonth > 12) {
+                currentCalMonth = 1;
+                currentCalYear += 1;
+            }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const titleEl = document.getElementById('calendar-month-title');
+            const gridEl = document.getElementById('calendar-grid');
+            if (!titleEl || !gridEl) return;
+
+            titleEl.textContent = `${currentCalYear}年 ${currentCalMonth}月`;
+
+            const firstDayOfWeek = new Date(currentCalYear, currentCalMonth - 1, 1).getDay();
+            const daysInMonth = new Date(currentCalYear, currentCalMonth, 0).getDate();
+            const prevMonthDays = new Date(currentCalYear, currentCalMonth - 1, 0).getDate();
+            const journals = getSavedJournals();
+            const allDateTags = getSavedDateTags();
+
+            const cells = [];
+            // 上個月底補齊灰色日期
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                cells.push(`<div class="min-h-[48px] py-1.5 flex flex-col items-center justify-center text-gray-300"><span>${prevMonthDays - i}</span><div class="h-[8px] mt-1"></div></div>`);
+            }
+
+            // 本月日期：只有有寫日誌並按下「儲存今日日誌」時，月曆區塊 bg 才會變粉黃色 (.cal-recorded-cream)，沒有則不變色；若有標示則於日期下方顯示最多 3 顆 8px*8px 圓點
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentCalMonth}月${day}日`;
+                const isToday = (currentCalYear === todayYear && currentCalMonth === todayMonth && day === todayDay);
+                const journalList = getDateJournalList(journals, dateStr);
+                const tagRecord = allDateTags[dateStr] || {};
+                const tags = Array.isArray(tagRecord.tags) ? tagRecord.tags : [];
+                const hasJournal = journalList.length > 0;
+
+                let bgClasses = 'hover:bg-brand-light text-brand';
+                if (hasJournal) {
+                    bgClasses = 'cal-recorded-cream text-brand shadow-2xs';
+                } else if (isToday) {
+                    bgClasses = 'bg-brand-pinkSoft text-brand shadow-sm';
+                }
+
+                // 最多顯示 3 顆 8px*8px 圓形標示點點
+                const dotsHtml = tags.slice(0, 3).map(t =>
+                    `<span style="width:8px;height:8px;background-color:${t.color};" class="rounded-full inline-block shrink-0"></span>`
+                ).join('');
+
+                cells.push(`
+                    <div data-date="${dateStr}" data-today="${isToday ? '1' : '0'}" onclick="openDateModal('${dateStr}')" class="min-h-[48px] py-1.5 flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all ${bgClasses}">
+                        <span class="leading-none">${day}</span>
+                        <div class="flex items-center justify-center gap-1 mt-1 h-[8px]">${dotsHtml}</div>
+                    </div>
+                `);
+            }
+
+            gridEl.innerHTML = cells.join('');
+        }
+
+        function getSavedJournals() {
+            try {
+                const raw = localStorage.getItem(JOURNAL_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        // Normalize a date's saved data into an array of journal entries (preserving old entries)
+        function getDateJournalList(journals, dateStr) {
+            const data = journals[dateStr];
+            if (!data) return [];
+            return Array.isArray(data) ? data : [data];
+        }
+
+        // 將下方日誌輸入表單重置為空白預設狀態
+        function resetJournalFormToBlank() {
+            const noteEl = document.getElementById('journal-note');
+            const foodEl = document.getElementById('journal-food');
+            const heightEl = document.getElementById('journal-height');
+            const weightEl = document.getElementById('journal-weight');
+            const poopRange = document.getElementById('poop-range');
+            const appetiteRange = document.getElementById('appetite-range');
+            if (noteEl) noteEl.value = '';
+            if (foodEl) foodEl.value = '';
+            if (heightEl) heightEl.value = '';
+            if (weightEl) weightEl.value = '';
+            if (poopRange) {
+                poopRange.value = 20;
+                updatePoopStatus(20);
+            }
+            if (appetiteRange) {
+                appetiteRange.value = 10;
+                updateAppetiteStatus(10);
+            }
+
+            // 重置貼圖選單按鈕狀態
+            document.querySelectorAll('#sticker-menu button').forEach(btn => {
+                btn.classList.remove('sticker-btn-clicked', 'yonggo-clicked-ux');
+            });
+        }
+
+        function updateCalendarPinkMarkers() {
+            renderCalendar();
+        }
+
+        // 儲存選定日期的標示選項（打疫苗、洗澡、看獸醫、異常狀況）與自訂心情
+        function saveDateModalTags() {
+            const selectedTags = [];
+            document.querySelectorAll('#modal-tag-group .record-tag-btn.is-selected').forEach(btn => {
+                selectedTags.push({
+                    id: btn.getAttribute('data-tag-id'),
+                    label: btn.getAttribute('data-tag-label'),
+                    color: btn.getAttribute('data-tag-color')
+                });
+            });
+            const customTagEl = document.getElementById('modal-custom-tag');
+            const customTag = customTagEl ? customTagEl.value.trim() : '';
+            const selectedMoodBtn = document.querySelector('#modal-mood-group button.btn-selected-pink');
+            const mood = selectedMoodBtn ? selectedMoodBtn.getAttribute('data-mood') : '';
+
+            const allDateTags = getSavedDateTags();
+            if (selectedTags.length === 0 && !customTag && !mood) {
+                delete allDateTags[activeModalDateStr];
+            } else {
+                allDateTags[activeModalDateStr] = {
+                    tags: selectedTags,
+                    customTag,
+                    mood
+                };
+            }
+            localStorage.setItem(DATE_TAGS_STORAGE_KEY, JSON.stringify(allDateTags));
+
+            renderCalendar();
+            closeDateModal();
+            showAppModal('更新成功', `已成功更新 ${activeModalDateStr} 的健康標示！`);
+        }
+
+        // 儲存日誌（支援當天與所選非當天日期：按下月曆日期 -> 填入日誌內容 -> 按下儲存今日日誌 -> 該月曆日期背景紀錄成粉黃色）
+        function saveDailyJournal() {
+            const note = (document.getElementById('journal-note').value || '').trim();
+            const food = (document.getElementById('journal-food').value || '').trim();
+            const height = (document.getElementById('journal-height').value || '').trim();
+            const weight = (document.getElementById('journal-weight').value || '').trim();
+            const poopStatus = document.getElementById('poop-status-text').textContent;
+            const appetiteStatus = document.getElementById('appetite-status-text').textContent;
+
+            if (!note && !food && !height && !weight) {
+                showAppModal('尚未填寫內容', '請先在日誌區寫下備忘或輸入食量、身高體重再儲存喔！');
+                return;
+            }
+
+            const targetDate = activeModalDateStr || TODAY_DATE_STR;
+            const journals = getSavedJournals();
+            const existingList = getDateJournalList(journals, targetDate);
+            existingList.push({
+                poopStatus,
+                appetiteStatus,
+                food,
+                note,
+                height,
+                weight,
+                savedAt: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+            });
+            journals[targetDate] = existingList;
+            localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(journals));
+
+            updateCalendarPinkMarkers();
+            resetJournalFormToBlank();
+            showAppModal('成功儲存', `已成功儲存 ${targetDate} 的健康日誌！`);
+        }
+
+        // 根據下拉式選單目前選擇的項目渲染日誌內容
+        function renderSelectedJournalEntry() {
+            const selectEl = document.getElementById('modal-journal-select');
+            const journalContent = document.getElementById('modal-journal-content');
+            const journalSection = document.getElementById('modal-journal-section');
+            const journals = getSavedJournals();
+            const entries = getDateJournalList(journals, activeModalDateStr);
+
+            if (!entries.length) {
+                if (selectEl) selectEl.innerHTML = '';
+                if (journalContent) journalContent.innerHTML = '';
+                if (journalSection) journalSection.classList.add('hidden');
+                return;
+            }
+
+            const val = selectEl ? selectEl.value : '0';
+            if (val === 'collapsed') {
+                journalContent.classList.add('hidden');
+                journalContent.innerHTML = '';
+                return;
+            }
+
+            journalContent.classList.remove('hidden');
+            const idx = Math.max(0, Math.min(entries.length - 1, parseInt(val, 10) || 0));
+            const entry = entries[idx];
+            const items = [];
+            items.push(`<div class="flex justify-between"><span>💩 便便狀況：<b>${entry.poopStatus}</b></span><span>🥣 食慾：<b>${entry.appetiteStatus}</b></span></div>`);
+            if (entry.food) {
+                items.push(`<div>🍖 今日食量：<b>${entry.food} 克</b></div>`);
+            }
+            if (entry.height || entry.weight) {
+                const hw = [];
+                if (entry.height) hw.push(`身高 ${entry.height} cm`);
+                if (entry.weight) hw.push(`體重 ${entry.weight} 克`);
+                items.push(`<div>📏 生長紀錄：<b>${hw.join(' ／ ')}</b></div>`);
+            }
+            if (entry.note) {
+                items.push(`<div class="bg-brand-cream p-2 rounded-md border border-brand-light text-brand whitespace-pre-wrap break-words mt-1">${entry.note.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`);
+            }
+            journalContent.innerHTML = items.join('');
+        }
+
+        // Populate the journal dropdown menu for a given date
+        function populateModalJournalDropdown(dateStr) {
+            const journals = getSavedJournals();
+            const journalSection = document.getElementById('modal-journal-section');
+            const selectEl = document.getElementById('modal-journal-select');
+            const journalContent = document.getElementById('modal-journal-content');
+            const entries = getDateJournalList(journals, dateStr);
+
+            if (entries.length > 0) {
+                const optionsHtml = entries.map((entry, idx) => {
+                    const timeLabel = (entry.savedAt && !entry.savedAt.includes('T')) ? ` (${entry.savedAt})` : '';
+                    const suffix = entries.length > 1 ? ` - 紀錄 #${idx + 1}${timeLabel}` : timeLabel;
+                    return `<option value="${idx}">檢視當天日誌${suffix}</option>`;
+                });
+                optionsHtml.push(`<option value="collapsed">檢視當天日誌（收合內容）</option>`);
+                selectEl.innerHTML = optionsHtml.join('');
+                selectEl.value = String(entries.length - 1);
+                journalSection.classList.remove('hidden');
+                renderSelectedJournalEntry();
+            } else {
+                selectEl.innerHTML = '';
+                journalContent.innerHTML = '';
+                journalSection.classList.add('hidden');
+            }
+        }
+
+        // 按下右側「X刪除」按鈕：刪除檢視當天日誌下拉式選單內容，並同步更新月曆粉黃色區塊
+        function deleteDateJournalEntry() {
+            const journals = getSavedJournals();
+            const entries = getDateJournalList(journals, activeModalDateStr);
+            if (!entries.length) return;
+
+            const selectEl = document.getElementById('modal-journal-select');
+            const val = selectEl ? selectEl.value : '0';
+
+            if (entries.length <= 1 || val === 'collapsed') {
+                delete journals[activeModalDateStr];
+            } else {
+                const idx = parseInt(val, 10);
+                if (!isNaN(idx) && idx >= 0 && idx < entries.length) {
+                    entries.splice(idx, 1);
+                } else {
+                    entries.pop();
+                }
+                if (entries.length === 0) {
+                    delete journals[activeModalDateStr];
+                } else {
+                    journals[activeModalDateStr] = entries;
+                }
+            }
+
+            localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(journals));
+            populateModalJournalDropdown(activeModalDateStr);
+            renderCalendar();
+        }
+
+        // 開啟日期彈跳視窗（並將目前選擇的月曆日期設為日誌目標日期）
+        function openDateModal(dateStr) {
+            activeModalDateStr = dateStr;
+            document.getElementById('modal-date-title').textContent = `日期紀錄：${dateStr}`;
+            const badgeEl = document.getElementById('journal-date-badge');
+            if (badgeEl) {
+                badgeEl.textContent = dateStr === TODAY_DATE_STR ? `今日日誌筆記 (${dateStr})` : `日誌筆記：${dateStr}`;
+            }
+
+            // 還原該日期的標示選項、自訂標籤與心情狀態
+            const allDateTags = getSavedDateTags();
+            const savedTagData = allDateTags[dateStr] || {};
+            const savedTagIds = new Set((savedTagData.tags || []).map(t => t.id));
+            document.querySelectorAll('#modal-tag-group .record-tag-btn').forEach(btn => {
+                const tagId = btn.getAttribute('data-tag-id');
+                btn.classList.toggle('is-selected', savedTagIds.has(tagId));
+                btn.classList.remove('yonggo-clicked-ux');
+            });
+            const customTagEl = document.getElementById('modal-custom-tag');
+            if (customTagEl) customTagEl.value = savedTagData.customTag || '';
+            document.querySelectorAll('#modal-mood-group button').forEach(btn => {
+                const isMatched = savedTagData.mood && btn.getAttribute('data-mood') === savedTagData.mood;
+                btn.classList.toggle('btn-selected-pink', Boolean(isMatched));
+                btn.classList.remove('yonggo-clicked-ux');
+            });
+
+            populateModalJournalDropdown(dateStr);
+
+            const modal = document.getElementById('date-modal');
+            const card = document.getElementById('date-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            resetJournalFormToBlank();
+            renderCalendar();
+        });
+        window.addEventListener('pageshow', () => {
+            resetJournalFormToBlank();
+            renderCalendar();
+        });
+
+        // 關閉日期彈跳視窗
+        function closeDateModal() {
+            const modal = document.getElementById('date-modal');
+            const card = document.getElementById('date-modal-card');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // 切換記錄選項選取狀態（點擊後變深色、放大）
+        function selectMood(btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach(b => b.classList.remove('btn-selected-pink', 'bg-brand-pinkSoft', 'border-brand-pink'));
+            btn.classList.add('btn-selected-pink');
+        }
+
+        function toggleRecordItem(btn) {
+            btn.classList.toggle('is-selected');
+        }
+
+        // 顯示/隱藏貼圖 Popup 選單（點擊後按鈕變深色並放大）
+        function toggleStickerPopup(btn) {
+            const menu = document.getElementById('sticker-menu');
+            const toggleBtn = btn || document.getElementById('sticker-toggle-btn');
+            const isHidden = menu.classList.toggle('hidden');
+            if (toggleBtn) {
+                toggleBtn.classList.toggle('btn-selected-pink', !isHidden);
+            }
+        }
+
+        // 插入貼圖到文字框（僅插入圖案，並讓點擊後的貼圖按鈕保持變深色與放大）
+        function insertSticker(stickerIcon, btn) {
+            const textarea = document.querySelector('textarea');
+            textarea.value += stickerIcon;
+            if (btn) {
+                btn.classList.add('sticker-btn-clicked');
+            }
+        }
+
+        // 更新便便狀態文字
+        function updatePoopStatus(val) {
+            const txt = document.getElementById('poop-status-text');
+            if(val < 30) { txt.textContent = "正常"; txt.className = "text-brand-pink"; }
+            else if(val < 70) { txt.textContent = "稍軟"; txt.className = "text-amber-500"; }
+            else { txt.textContent = "異常/腹瀉"; txt.className = "text-red-500"; }
+        }
+
+        // 更新食慾狀態文字
+        function updateAppetiteStatus(val) {
+            const txt = document.getElementById('appetite-status-text');
+            if(val < 30) { txt.textContent = "很好"; txt.className = "text-brand"; }
+            else if(val < 70) { txt.textContent = "普通"; txt.className = "text-amber-500"; }
+            else { txt.textContent = "食慾不振"; txt.className = "text-red-500"; }
+        }
+
+        // 底部 NAV 切換
+        function switchNav(element, name) {
+            if(name === '首頁') {
+                showAppModal('導覽提示', '切換返回首頁');
+                return;
+            }
+            showAppModal('頁面切換', `切換至「${name}」分頁`);
+        }
+
+        // 顯示通用對話框
+        function showAppModal(title, message) {
+            const modal = document.getElementById('app-modal');
+            const card = document.getElementById('modal-card');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-msg').textContent = message;
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        // 關閉通用對話框
+        function closeAppModal() {
+            const modal = document.getElementById('app-modal');
+            const card = document.getElementById('modal-card');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+    </script>
+</body>
+</html>

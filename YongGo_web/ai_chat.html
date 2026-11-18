@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fffcf4">
+  <title>YongGo｜Dr.Yong 寵物行為專家</title>
+  <!-- 引入 FontAwesome 圖標與圓潤字體以統一底部導覽列風格 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --green: #2f5537;
+      --green-dark: #23442b;
+      --green-pale: #e4edd1;
+      --cream: #fffcf4;
+      --pink-pale: #f9d3ce;
+      --pink: #f19689;
+      --ink-soft: #68786a;
+      --line: rgba(47, 85, 55, .12);
+      --shadow: 0 12px 34px rgba(33, 61, 39, .10);
+      font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      padding: 0;
+      background: #dce5da;
+      color: var(--green);
+    }
+    button, textarea, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    .app {
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--cream);
+      box-shadow: 0 0 24px rgba(33, 61, 39, .10);
+      position: relative;
+      border-radius: 0;
+    }
+    @media (max-width: 760px) {
+      .app {
+        max-width: 100%;
+        box-shadow: none;
+      }
+    }
+    .topbar {
+      flex: 0 0 auto;
+      min-height: 76px;
+      padding: max(12px, env(safe-area-inset-top)) 18px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,252,244,.96);
+      border-bottom: 1px solid var(--line);
+      z-index: 2;
+    }
+    .identity { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .avatar {
+      width: 48px; height: 48px; border-radius: 50%; flex: 0 0 auto;
+      display: grid; place-items: center; position: relative;
+      background: var(--green-pale); border: 2px solid var(--green);
+      will-change: transform;
+      animation: drYongBreathe 3.6s ease-in-out infinite;
+    }
+    .avatar::before {
+      content: ""; position: absolute; inset: -4px; border-radius: 50%;
+      border: 1.5px solid var(--pink); pointer-events: none;
+      will-change: transform, opacity;
+      animation: drYongHalo 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .avatar.talking {
+      animation: drYongTalk 0.65s ease-in-out infinite;
+    }
+    .avatar img, .mini-avatar img {
+      width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;
+    }
+    @keyframes drYongBreathe {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+      35% { transform: translate3d(0, -2.5px, 0) rotate(-2deg) scale(1.03); }
+      70% { transform: translate3d(0, -1px, 0) rotate(2deg) scale(1.015); }
+    }
+    @keyframes drYongHalo {
+      0% { transform: scale(0.95); opacity: 0.65; }
+      75%, 100% { transform: scale(1.18); opacity: 0; }
+    }
+    @keyframes drYongTalk {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+      30% { transform: translate3d(0, -4px, 0) rotate(-3deg) scale(1.06); }
+      65% { transform: translate3d(0, -2px, 0) rotate(3deg) scale(1.04); }
+    }
+    @keyframes drYongPopIn {
+      0% { transform: scale(0.6); opacity: 0; }
+      70% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .online { position: absolute; width: 11px; height: 11px; right: -1px; bottom: 0;
+      border-radius: 50%; background: #6eaa67; border: 2px solid var(--cream); z-index: 2; }
+    .title { margin: 0; font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 1.25rem; line-height: 1.75rem; font-weight: 900; letter-spacing: -0.025em; color: #2f5537; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .subtitle { margin: 3px 0 0; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.35rem; }
+    .online-label { display: inline-flex; align-items: center; gap: 4px;
+      padding: 1px 8px; background: var(--green-pale); border-radius: 99px; font-size: 12px; font-weight: 800; }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .menu-button { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%;
+      background: white; color: var(--green); font-size: 18px; cursor: pointer; display: grid; place-items: center;
+      transition: transform .15s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
+    .menu-button:active { transform: scale(.94); }
+    .music-button { font-size: 14px; }
+    .music-button.playing {
+      background: var(--green-pale);
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(241, 150, 137, .28);
+      animation: musicPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes musicPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 3px rgba(241, 150, 137, .28); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(241, 150, 137, .12); }
+    }
+    .messages {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 17px 15px 18px;
+      scroll-behavior: smooth;
+      font-size: 0.9rem;
+      line-height: 1.35rem;
+    }
+    .day { display: flex; justify-content: center; margin: 0 0 18px; }
+    .day span { padding: 5px 12px; border-radius: 99px; color: #6d806e; background: #f1f4e9; font-size: 12px; font-weight: 700; }
+    .profile-badge-bar {
+      display: none; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 8px 12px; margin: 0 0 14px; border-radius: 12px;
+      background: #edf3e1; border: 1px solid #d8e5c4; color: var(--green-dark);
+      font-size: 0.9rem;
+    }
+    .profile-badge-bar.active { display: none; }
+    .profile-badge-bar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-badge-btn {
+      flex: 0 0 auto; border: 1px solid #b8cda0; border-radius: 99px; padding: 3px 9px;
+      background: white; color: var(--green); font-size: 12px; font-weight: 800; cursor: pointer;
+    }
+    .suggest-label { margin: 10px 0 6px; font-size: 0.9rem; font-weight: 800; color: #738173; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .suggestion { border: 1px solid #dce7cf; border-radius: 999px; padding: 6px 12px;
+      color: var(--green); background: #f9fbf4; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background .15s, transform .12s; }
+    .suggestion:hover { background: var(--green-pale); }
+    .suggestion:active, .send:active, .nav-item:active { transform: scale(.97); }
+    .row { display: flex; align-items: flex-end; gap: 8px; margin: 15px 0; }
+    .row.user { justify-content: flex-end; }
+    .mini-avatar { flex: 0 0 auto; width: 32px; height: 32px; display: grid; place-items: center;
+      border-radius: 50%; background: var(--green-pale); border: 1.5px solid var(--green);
+      overflow: hidden; will-change: transform;
+      animation: drYongPopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), drYongBreathe 3.8s ease-in-out 0.35s infinite; }
+    .message-wrap { max-width: 84%; min-width: 0; }
+    .name { display: block; margin: 0 0 5px 4px; font-size: 12px; font-weight: 900; color: var(--green); }
+    .user .name, .user .time { text-align: right; margin-right: 4px; }
+    .bubble { border-radius: 17px; padding: 11px 14px; font-size: 0.9rem; line-height: 1.55;
+      white-space: pre-wrap; overflow-wrap: anywhere; }
+    .assistant .bubble { background: white; border: 1px solid #e2ead9; border-bottom-left-radius: 5px; }
+    .user .bubble { color: white; background: var(--green); border-bottom-right-radius: 5px; }
+    .time { display: block; margin: 5px 4px 0; color: #9aa49a; font-size: 11px; }
+    .faq-result { margin-top: 8px; padding: 9px 10px; border-radius: 12px; background: #f7f6ed; border: 1px solid #ebe8d9; }
+    .faq-result strong { display: block; margin-bottom: 6px; font-size: 0.9rem; }
+    .faq-link {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      width: 100%; padding: 7px 9px; margin-top: 4px;
+      border: 1px solid #e2e6d5; border-radius: 8px;
+      background: white; color: var(--green);
+      font-size: 0.9rem; line-height: 1.45; text-align: left;
+      text-decoration: none; cursor: pointer; transition: background .15s, transform .12s;
+    }
+    .faq-link:hover { background: var(--green-pale); }
+    .faq-link:active { transform: scale(.98); }
+    .faq-link::after { content: "›"; color: #789079; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+    .safety { margin: 14px 0 3px; padding: 10px 12px; border-radius: 13px; background: #fff4ec;
+      border: 1px solid #f3dfd1; color: #786256; font-size: 0.85rem; line-height: 1.6; }
+    .safety b { color: #8a554b; }
+    .typing { display: inline-flex; align-items: center; gap: 4px; color: #789079; font-size: 0.9rem; }
+    .typing i { width: 5px; height: 5px; border-radius: 50%; background: #91a58a; animation: pulse 1s infinite alternate; }
+    .typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
+    @keyframes pulse { to { opacity: .25; transform: translateY(-2px); } }
+    .composer {
+      flex: 0 0 auto; padding: 10px 13px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,.97); border-top: 1px solid var(--line);
+    }
+    .compose-form { display: flex; align-items: flex-end; gap: 8px; }
+    .input-wrap { flex: 1; display: flex; align-items: center; min-height: 44px; padding: 0 13px;
+      border-radius: 22px; background: #f7f7ef; border: 1px solid #e4e8d9; }
+    .input-wrap:focus-within { border-color: #a8bd9a; box-shadow: 0 0 0 3px rgba(228,237,209,.7); }
+    textarea { width: 100%; max-height: 100px; min-height: 20px; padding: 10px 0; border: 0; outline: 0;
+      resize: none; color: var(--green); background: transparent; font-size: 0.9rem; line-height: 1.5; }
+    textarea::placeholder { color: #91a08e; }
+    .send { width: 43px; height: 43px; flex: 0 0 auto; border: 0; border-radius: 50%;
+      display: grid; place-items: center; background: var(--green); color: white; font-size: 17px; cursor: pointer; transition: transform .12s; }
+    .send:disabled { opacity: .55; cursor: wait; }
+    .compose-note { margin: 6px 0 0 5px; color: #9aa49a; font-size: 11px; }
+    .bottom-nav { flex: 0 0 auto; display: flex; justify-content: space-around; align-items: center;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      background: white; border-top: 1px solid #f3f4f6; border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, .06); font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .nav-item { display: flex; flex-direction: column; align-items: center;
+      padding: 4px 12px; text-decoration: none; color: rgba(47, 85, 55, .5); font-size: 14px; font-weight: 700; transition: color .15s, transform .12s; position: relative; }
+    .nav-item:hover { color: var(--green); }
+    .nav-icon { font-size: 20px; line-height: 28px; margin-bottom: 2px; }
+    .nav-item.active { color: var(--green); font-weight: 900; }
+    .nav-dot { position: absolute; width: 8px; height: 8px; top: 4px; right: 12px; background: var(--pink); border-radius: 50%; }
+    .toast { position: absolute; left: 18px; right: 18px; top: 88px; z-index: 10;
+      padding: 11px 13px; border-radius: 13px; color: white; background: #526b53; font-size: 0.9rem;
+      box-shadow: var(--shadow); opacity: 0; transform: translateY(-8px); pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* 毛孩記憶檔案 Modal */
+    .modal-backdrop {
+      position: absolute; inset: 0; z-index: 8;
+      background: rgba(25, 42, 28, .42);
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-sheet {
+      width: 100%; max-height: 82%; overflow-y: auto;
+      background: var(--cream); border-radius: 22px 22px 0 0;
+      padding: 18px 16px 24px; box-shadow: 0 -8px 30px rgba(0,0,0,.15);
+    }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .modal-header h3 { margin: 0; font-size: 1rem; font-weight: 900; }
+    .modal-close { border: 0; background: #e8eee5; color: var(--green); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .profile-item { background: white; border: 1px solid #e2ead9; border-radius: 10px; padding: 8px 10px; }
+    .profile-item.full { grid-column: 1 / -1; }
+    .profile-item label { display: block; font-size: 12px; color: #789079; font-weight: 800; margin-bottom: 3px; }
+    .profile-item div { font-size: 0.9rem; font-weight: 700; color: var(--green); word-break: break-word; }
+    .trait-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+    .trait-tag { background: var(--green-pale); color: var(--green-dark); padding: 3px 8px; border-radius: 99px; font-size: 12px; font-weight: 700; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-secondary, .btn-danger {
+      flex: 1; padding: 9px 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; cursor: pointer; text-align: center;
+    }
+    .btn-secondary { border: 1px solid #cfe0be; background: white; color: var(--green); }
+    .btn-danger { border: 1px solid #f1c4bc; background: #fff0ed; color: #a1493d; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="identity">
+        <div class="avatar" id="top-dr-avatar" aria-hidden="true"><img src="./image/dr_yong_avatar.png" alt="Dr.Yong 頭像"><span class="online"></span></div>
+        <div>
+          <h1 class="title">Dr.Yong寵物專家 <span class="online-label">● 在線</span></h1>
+          <p class="subtitle">最懂你的煩惱，最即時的幫助</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="menu-button music-button" type="button" id="music-button" aria-label="播放療癒舒緩音樂" title="播放療癒舒緩音樂" aria-pressed="false">
+          <i class="fa-solid fa-music" aria-hidden="true"></i>
+        </button>
+        <button class="menu-button" type="button" aria-label="毛孩記憶檔案" id="help-button" title="查看毛孩記憶檔案">📋</button>
+      </div>
+      <audio id="calm-music" src="./audio/calm_warm_peace.mp3" loop preload="none"></audio>
+    </header>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <main class="messages" id="messages" aria-live="polite">
+      <div class="day"><span>今天 · Dr.Yong 陪伴中</span></div>
+      <div class="profile-badge-bar" id="profile-bar">
+        <span id="profile-summary-text">🐾 已載入毛孩記憶檔案</span>
+        <button type="button" class="profile-badge-btn" id="open-profile-btn">查看記憶</button>
+      </div>
+      <div id="chat-stream"></div>
+      <div class="safety"><b>貼心提醒</b>　若毛孩呼吸困難、持續嘔吐或疑似誤食異物，請立即聯絡獸醫或動物急診。</div>
+    </main>
+
+    <!-- 毛孩記憶檔案 Modal -->
+    <div class="modal-backdrop" id="profile-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 id="modal-title">🐾 Dr.Yong 的毛孩記憶筆記</h3>
+          <button type="button" class="modal-close" id="close-modal-btn" aria-label="關閉">✕</button>
+        </div>
+        <div class="profile-grid" id="profile-detail-grid"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="close-modal-btn-2">返回對話</button>
+          <button type="button" class="btn-danger" id="reset-profile-btn">🔄 重新設定檔案</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="composer" aria-label="輸入訊息">
+      <form class="compose-form" id="chat-form">
+        <div class="input-wrap">
+          <textarea id="chat-input" rows="1" maxlength="2000" placeholder="輸入你的回答或想問 Dr.Yong 的事…" aria-label="輸入問題"></textarea>
+        </div>
+        <button class="send" id="send-button" type="submit" aria-label="送出訊息">➤</button>
+      </form>
+    </section>
+
+    <nav class="bottom-nav" aria-label="主要導覽">
+      <a class="nav-item" href="index.html"><i class="fa-solid fa-house nav-icon"></i><span>首頁</span></a>
+      <a class="nav-item" href="training_center.html"><i class="fa-solid fa-bone nav-icon"></i><span>訓練</span></a>
+      <a class="nav-item" href="healthjourney.html"><i class="fa-regular fa-clipboard nav-icon"></i><span>紀錄</span></a>
+      <a class="nav-item active" href="ai_chat.html" aria-current="page"><i class="fa-solid fa-robot nav-icon"></i><span>AI助教</span><span class="nav-dot"></span></a>
+      <a class="nav-item" href="personal_setting.html"><i class="fa-regular fa-user nav-icon"></i><span>我的</span></a>
+    </nav>
+  </div>
+
+  <script>
+    // 前端只放 Supabase Publishable key；絕不可放 Gemini API key 或 service_role key。
+    const SUPABASE_URL = "https://nnjidvxqihpunnkiqbzf.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_htoxDsZk_Ek43JbS7Q8Enw_xaAPsEuE";
+    const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/yonggo-chat`;
+    const STORAGE_KEY = "yonggo_dr_yong_profile_v1";
+
+    const messagesContainer = document.getElementById("messages");
+    const chatStream = document.getElementById("chat-stream");
+    const input = document.getElementById("chat-input");
+    const form = document.getElementById("chat-form");
+    const sendButton = document.getElementById("send-button");
+    const toast = document.getElementById("toast");
+    const profileBar = document.getElementById("profile-bar");
+    const profileSummaryText = document.getElementById("profile-summary-text");
+    const profileModal = document.getElementById("profile-modal");
+    const profileDetailGrid = document.getElementById("profile-detail-grid");
+    let toastTimer;
+
+    // 預設毛孩記憶結構
+    function getDefaultProfile() {
+      return {
+        completed: false,
+        step: 0, // 0~7 對應 8 個引導問題
+        userName: "",
+        breed: "",
+        dogName: "",
+        age: "",
+        environment: "",
+        source: "",
+        vaccine: "",
+        traits: [], // 持續累積的特徵或行為陣列
+        updatedAt: null
+      };
+    }
+
+    function loadProfile() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return getDefaultProfile();
+        const parsed = JSON.parse(raw);
+        return {
+          ...getDefaultProfile(),
+          ...parsed,
+          traits: Array.isArray(parsed.traits) ? parsed.traits : []
+        };
+      } catch {
+        return getDefaultProfile();
+      }
+    }
+
+    function saveProfile(profile) {
+      profile.updatedAt = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      updateProfileBadge();
+    }
+
+    let profile = loadProfile();
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+    function updateProfileBadge() {
+      if (profile.completed && profile.userName && profile.dogName) {
+        profileBar.classList.add("active");
+        const latestTrait = profile.traits.length ? ` · 紀錄 ${profile.traits.length} 項特徵` : "";
+        profileSummaryText.textContent = `🐾 ${profile.userName} 與 ${profile.dogName}（${profile.breed}・${profile.age}）${latestTrait}`;
+      } else {
+        profileBar.classList.remove("active");
+      }
+    }
+
+    // 判斷是否為有意義的新行為或特徵描述並自動累積
+    function accumulateTraitIfRelevant(text) {
+      const clean = text.trim();
+      if (!clean || clean.length < 3 || clean.length > 80) return;
+      const behaviorKeywords = [
+        "咬", "叫", "吠", "尿", "便", "拉", "吐", "怕", "抖", "護食", "暴衝", "抓", "舔",
+        "焦慮", "發抖", "不吃", "挑食", "興奮", "撲人", "生氣", "低吼", "躲", "拆家", "亂吃"
+      ];
+      const hasBehavior = behaviorKeywords.some((kw) => clean.includes(kw));
+      if (hasBehavior && !profile.traits.includes(clean)) {
+        profile.traits.unshift(clean);
+        if (profile.traits.length > 10) {
+          profile.traits = profile.traits.slice(0, 10);
+        }
+        saveProfile(profile);
+      }
+    }
+
+    // 建立對話訊息氣泡（支援附帶快速點擊選項 options 與 FAQ 清單）
+    function addMessage(role, text, faqList = [], quickOptions = []) {
+      const row = document.createElement("div");
+      row.className = `row ${role}`;
+      if (role === "assistant") {
+        const avatar = document.createElement("div");
+        avatar.className = "mini-avatar";
+        avatar.innerHTML = '<img src="./image/dr_yong_avatar.png" alt="Dr.Yong">';
+        row.appendChild(avatar);
+      }
+      const wrap = document.createElement("div");
+      wrap.className = "message-wrap";
+      const name = document.createElement("span");
+      name.className = "name";
+      name.textContent = role === "user" ? (profile.userName || "你") : "Dr.Yong寵物專家";
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+      wrap.append(name, bubble);
+
+      // 快速選項膠囊（破冰問答或回訪建議提問）
+      if (role === "assistant" && quickOptions.length) {
+        const suggestWrap = document.createElement("div");
+        suggestWrap.className = "suggestions";
+        quickOptions.forEach((optText) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "suggestion";
+          btn.textContent = optText;
+          btn.addEventListener("click", () => {
+            if (!sendButton.disabled) {
+              handleUserInput(optText);
+            }
+          });
+          suggestWrap.appendChild(btn);
+        });
+        wrap.appendChild(suggestWrap);
+      }
+
+      // 相關 FAQ 可點擊列表
+      if (role === "assistant" && faqList.length) {
+        const card = document.createElement("div");
+        card.className = "faq-result";
+        const heading = document.createElement("strong");
+        heading.textContent = "📚 找到相關 FAQ（點擊可繼續發問）";
+        card.appendChild(heading);
+        faqList.slice(0, 4).forEach((faq) => {
+          const question = faq.question || "相關照護知識";
+          const item = document.createElement("button");
+          item.type = "button";
+          item.className = "faq-link";
+          item.textContent = question;
+          item.addEventListener("click", () => {
+            if (!sendButton.disabled) {
+              handleUserInput(question);
+            }
+          });
+          card.appendChild(item);
+        });
+        wrap.appendChild(card);
+      }
+
+      const time = document.createElement("span");
+      time.className = "time";
+      time.textContent = new Intl.DateTimeFormat("zh-TW", { hour: "2-digit", minute: "2-digit" }).format(new Date());
+      wrap.appendChild(time);
+      row.appendChild(wrap);
+      chatStream.appendChild(row);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      return row;
+    }
+
+    // 依進入時間（早／午／晚）產生動態隨機問候語
+    function getTimeBasedGreeting() {
+      const hour = new Date().getHours();
+      let period = "晚安";
+      if (hour >= 5 && hour < 11) {
+        period = "早安";
+      } else if (hour >= 11 && hour < 18) {
+        period = "午安";
+      }
+
+      const uName = profile.userName || "家長";
+      const dName = profile.dogName || "狗狗";
+      const latestTrait = profile.traits[0] || "";
+
+      const templates = [
+        `嗨～${period} ${uName}，今天跟 ${dName} 互動了嗎？`,
+        `嗨～${period} ${uName}！今天 ${dName} 的精神與表現怎麼樣呢？有什麼想跟我聊聊的嗎？`
+      ];
+      if (latestTrait) {
+        templates.push(
+          `嗨～${period} ${uName}，今天跟 ${dName} 互動了嗎？上次我們聊到「${latestTrait}」，今天狀況有比較穩定嗎？`
+        );
+      }
+
+      const chosen = templates[Math.floor(Math.random() * templates.length)];
+      return `${chosen}\n\n（我已經記得 ${dName} 是 ${profile.age} 的${profile.breed}，直接問我問題就可以囉！）`;
+    }
+
+    // 初次引導問答步驟設定（共 8 步）
+    function askOnboardingStep(stepIndex) {
+      const uName = profile.userName || "您";
+      const dName = profile.dogName || "狗狗";
+
+      switch (stepIndex) {
+        case 0:
+          input.placeholder = "請輸入您的稱呼（例如：小安、Amanda）…";
+          addMessage(
+            "assistant",
+            "你好，我是根據國內外多位寵物行為專家的知識與大數據彙整而成的專家：我叫 Dr.Yong，最懂新手養育的煩惱，幫你理解狗狗的行為與養育知識補充，給你最即時生活化的幫助。\n\n請問怎麼稱呼您？"
+          );
+          break;
+        case 1:
+          input.placeholder = "請輸入狗狗的品種（例如：柴犬、米克斯）…";
+          addMessage(
+            "assistant",
+            `很高興認識你，${uName}！😊\n首先我要先了解狗狗，請問狗狗是什麼品種呢？`,
+            [],
+            ["米克斯（混種犬）", "柴犬", "貴賓犬", "馬爾濟斯", "黃金獵犬", "法國鬥牛犬", "博美犬", "柯基"]
+          );
+          break;
+        case 2:
+          input.placeholder = "請輸入狗狗的名字…";
+          addMessage(
+            "assistant",
+            `原來是可愛的${profile.breed}！🐾\n那牠叫什麼名字呢？`
+          );
+          break;
+        case 3:
+          input.placeholder = "請輸入目前幾個月大（例如：3 個月、1 歲半）…";
+          addMessage(
+            "assistant",
+            `「${dName}」這個名字真好聽！請問 ${dName} 目前幾個月大呢？`,
+            [],
+            ["2 個月以下", "2～3 個月", "4～6 個月", "7～11 個月", "1 歲以上"]
+          );
+          break;
+        case 4:
+          input.placeholder = "請描述居住環境狀況（例如：公寓大樓、透天）…";
+          addMessage(
+            "assistant",
+            `了解了！請問你們目前居住的環境狀況如何呢？（例如：公寓大樓、透天、有沒有庭院或獨立活動空間？）`,
+            [],
+            ["公寓／大樓", "獨立套房", "透天厝", "有庭院／大陽台", "與家人同住公寓"]
+          );
+          break;
+        case 5:
+          input.placeholder = "請輸入領養或購買…";
+          addMessage(
+            "assistant",
+            `請問 ${dName} 是領養還是購買的呢？`,
+            [],
+            ["領養的", "購買的（犬舍／寵物店）", "親友送養"]
+          );
+          break;
+        case 6:
+          input.placeholder = "請輸入目前打過幾劑疫苗…";
+          addMessage(
+            "assistant",
+            `目前 ${dName} 有打過幾劑疫苗了呢？`,
+            [],
+            ["還沒打疫苗", "已打 1 劑", "已打 2 劑", "已打滿 3 劑以上", "不確定"]
+          );
+          break;
+        case 7:
+          input.placeholder = "自由填寫狗狗目前的特徵或行為…";
+          addMessage(
+            "assistant",
+            `最後一題囉！請問 ${dName} 目前有什麼特徵或行為嗎？（自由填寫，之後問問題時我就會一直記住，不用重複輸入喔！）`,
+            [],
+            [
+              "很愛咬我的手跟腳",
+              "半夜或獨處時一直叫",
+              "還不會定點大小便",
+              "看到陌生人或狗會害怕發抖",
+              "散步時很愛暴衝拉繩"
+            ]
+          );
+          break;
+      }
+    }
+
+    // 處理初次引導問答的使用者回覆
+    function handleOnboardingAnswer(answer) {
+      addMessage("user", answer);
+      input.value = "";
+      input.style.height = "auto";
+
+      switch (profile.step) {
+        case 0:
+          profile.userName = answer;
+          profile.step = 1;
+          saveProfile(profile);
+          askOnboardingStep(1);
+          break;
+        case 1:
+          profile.breed = answer;
+          profile.step = 2;
+          saveProfile(profile);
+          askOnboardingStep(2);
+          break;
+        case 2:
+          profile.dogName = answer;
+          profile.step = 3;
+          saveProfile(profile);
+          askOnboardingStep(3);
+          break;
+        case 3:
+          profile.age = answer;
+          profile.step = 4;
+          saveProfile(profile);
+          askOnboardingStep(4);
+          break;
+        case 4:
+          profile.environment = answer;
+          profile.step = 5;
+          saveProfile(profile);
+          askOnboardingStep(5);
+          break;
+        case 5:
+          profile.source = answer;
+          profile.step = 6;
+          saveProfile(profile);
+          askOnboardingStep(6);
+          break;
+        case 6:
+          profile.vaccine = answer;
+          profile.step = 7;
+          saveProfile(profile);
+          askOnboardingStep(7);
+          break;
+        case 7:
+          profile.traits = [answer];
+          profile.step = 8;
+          profile.completed = true;
+          saveProfile(profile);
+          input.placeholder = `說說你和 ${profile.dogName} 遇到的事…`;
+          addMessage(
+            "assistant",
+            `太棒了，${profile.userName}！我已經把 ${profile.dogName}（${profile.breed}・${profile.age}）的環境與行為特徵都記在腦海裡囉 📝\n\n針對你剛剛提到「${answer}」，Dr.Yong 馬上根據你們的狀況為你分析：`
+          );
+          // 自動將第一個特徵問題連同完整背景送給 AI 回答
+          sendToAI(answer, false);
+          break;
+      }
+    }
+
+    // 組合帶有毛孩記憶背景的 Prompt 傳給後端
+    function buildContextualMessage(userQuestion) {
+      if (!profile.completed) return userQuestion;
+      const traitsText = profile.traits.length ? profile.traits.join("；") : "尚無特別紀錄";
+      return `${userQuestion}\n\n[系統記憶背景：請以「Dr.Yong」身分親切稱呼飼主「${profile.userName}」與狗狗「${profile.dogName}」。狗狗資訊：品種=${profile.breed}、月齡=${profile.age}、居住環境=${profile.environment}、來源=${profile.source}、疫苗=${profile.vaccine}、累積特徵與過往行為=${traitsText}。請直接結合這些背景給予具體生活化建議，不需請飼主重複提供基本資料。]`;
+    }
+
+    async function sendToAI(userQuestion, appendUserBubble = true) {
+      const message = userQuestion.trim();
+      if (!message) return;
+      if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.startsWith("請貼上")) {
+        showToast("請先在程式設定 Supabase Publishable key，再開始測試。");
+        return;
+      }
+
+      if (appendUserBubble) {
+        addMessage("user", message);
+        accumulateTraitIfRelevant(message);
+      }
+
+      input.value = "";
+      input.style.height = "auto";
+      sendButton.disabled = true;
+      sendButton.textContent = "…";
+      const topAvatar = document.getElementById("top-dr-avatar");
+      if (topAvatar) topAvatar.classList.add("talking");
+      const pending = addMessage("assistant", `Dr.Yong 正在為 ${profile.dogName || "毛孩"} 整理專屬建議，稍等我一下…`);
+      pending.querySelector(".bubble").classList.add("typing");
+      const pendingMini = pending.querySelector(".mini-avatar");
+      if (pendingMini) pendingMini.style.animation = "drYongTalk 0.65s ease-in-out infinite";
+
+      try {
+        const contextualMessage = buildContextualMessage(message);
+        const response = await fetch(FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_PUBLISHABLE_KEY
+          },
+          body: JSON.stringify({ message: contextualMessage })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || `服務回應 ${response.status}`);
+        pending.remove();
+        addMessage("assistant", data.reply || "我暫時沒有收到回答，請再試一次。", data.matchedFaqs || []);
+      } catch (error) {
+        pending.remove();
+        addMessage("assistant", error.message || "連線暫時不穩，請稍後再試。若問題持續，請確認網路或聯絡我們。");
+      } finally {
+        if (topAvatar) topAvatar.classList.remove("talking");
+        sendButton.disabled = false;
+        sendButton.textContent = "➤";
+        input.focus();
+      }
+    }
+
+    // 統一處理使用者送出的訊息（判斷在破冰引導階段或正式對談階段）
+    function handleUserInput(rawText) {
+      const text = rawText.trim();
+      if (!text) return;
+      if (!profile.completed) {
+        handleOnboardingAnswer(text);
+      } else {
+        sendToAI(text, true);
+      }
+    }
+
+    // 畫面初始化：判斷是否已完成破冰建檔
+    function initChat() {
+      chatStream.innerHTML = "";
+      updateProfileBadge();
+
+      if (!profile.completed) {
+        // 首次進入或尚未完成問答：從目前進度的步驟開始問（預設從 Step 0 自我介紹開始）
+        profile.step = 0;
+        askOnboardingStep(0);
+      } else {
+        // 已建檔回訪：依早／午／晚時間親切打招呼，並附上專屬快速問題
+        input.placeholder = `說說今天和 ${profile.dogName} 遇到的事…`;
+        const greeting = getTimeBasedGreeting();
+        const quickFollowUps = [];
+        if (profile.traits[0]) {
+          quickFollowUps.push(`繼續聊聊「${profile.traits[0]}」怎麼改善`);
+        }
+        quickFollowUps.push(
+          `${profile.age}的${profile.breed}目前要注意什麼？`,
+          `${profile.dogName} 在${profile.environment}適合做什麼互動遊戲？`,
+          "我覺得好挫折，需要一點鼓勵"
+        );
+        addMessage("assistant", greeting, [], quickFollowUps);
+      }
+    }
+
+    // 渲染毛孩記憶檔案 Modal 內容
+    function renderProfileModal() {
+      const fields = [
+        { label: "飼主稱呼", value: profile.userName || "尚未填寫" },
+        { label: "狗狗名字", value: profile.dogName || "尚未填寫" },
+        { label: "狗狗品種", value: profile.breed || "尚未填寫" },
+        { label: "目前月齡", value: profile.age || "尚未填寫" },
+        { label: "居住環境", value: profile.environment || "尚未填寫" },
+        { label: "領養／購買", value: profile.source || "尚未填寫" },
+        { label: "已打疫苗", value: profile.vaccine || "尚未填寫", full: true }
+      ];
+
+      profileDetailGrid.innerHTML = fields
+        .map(
+          (f) => `
+          <div class="profile-item ${f.full ? "full" : ""}">
+            <label>${f.label}</label>
+            <div>${f.value}</div>
+          </div>`
+        )
+        .join("");
+
+      const traitsHtml = profile.traits.length
+        ? profile.traits.map((t) => `<span class="trait-tag">${t}</span>`).join("")
+        : `<span style="font-size:10px;color:#889689;">尚未記錄特徵或行為</span>`;
+
+      const traitsBox = document.createElement("div");
+      traitsBox.className = "profile-item full";
+      traitsBox.innerHTML = `<label>累積記錄的特徵與行為（提問時自動帶入）</label><div class="trait-tags">${traitsHtml}</div>`;
+      profileDetailGrid.appendChild(traitsBox);
+    }
+
+    function openModal() {
+      renderProfileModal();
+      profileModal.classList.add("open");
+    }
+
+    function closeModal() {
+      profileModal.classList.remove("open");
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handleUserInput(input.value);
+    });
+
+    input.addEventListener("input", () => {
+      input.style.height = "auto";
+      input.style.height = `${Math.min(input.scrollHeight, 100)}px`;
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    document.getElementById("help-button").addEventListener("click", openModal);
+    document.getElementById("open-profile-btn").addEventListener("click", openModal);
+    document.getElementById("close-modal-btn").addEventListener("click", closeModal);
+    document.getElementById("close-modal-btn-2").addEventListener("click", closeModal);
+    profileModal.addEventListener("click", (e) => {
+      if (e.target === profileModal) closeModal();
+    });
+
+    document.getElementById("reset-profile-btn").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      profile = getDefaultProfile();
+      closeModal();
+      const musicButton = document.getElementById("music-button");
+    const calmMusic = document.getElementById("calm-music");
+    if (musicButton && calmMusic) {
+      calmMusic.volume = 0.45;
+      musicButton.addEventListener("click", async () => {
+        if (calmMusic.paused) {
+          try {
+            await calmMusic.play();
+            musicButton.classList.add("playing");
+            musicButton.setAttribute("aria-pressed", "true");
+            musicButton.title = "暫停療癒舒緩音樂";
+            showToast("🎵 已開啟溫暖舒緩音樂，陪你與毛孩放鬆心情");
+          } catch (err) {
+            showToast("無法播放音樂，請再點一次試試看");
+          }
+        } else {
+          calmMusic.pause();
+          musicButton.classList.remove("playing");
+          musicButton.setAttribute("aria-pressed", "false");
+          musicButton.title = "播放療癒舒緩音樂";
+          showToast("🔇 已暫停舒緩音樂");
+        }
+      });
+    }
+
+    initChat();
+      showToast("已重置毛孩檔案，重新開始 Dr.Yong 初次問答！");
+    });
+
+    const musicButton = document.getElementById("music-button");
+    const calmMusic = document.getElementById("calm-music");
+    if (musicButton && calmMusic) {
+      calmMusic.volume = 0.45;
+      musicButton.addEventListener("click", async () => {
+        if (calmMusic.paused) {
+          try {
+            await calmMusic.play();
+            musicButton.classList.add("playing");
+            musicButton.setAttribute("aria-pressed", "true");
+            musicButton.title = "暫停療癒舒緩音樂";
+            showToast("🎵 已開啟溫暖舒緩音樂，陪你與毛孩放鬆心情");
+          } catch (err) {
+            showToast("無法播放音樂，請再點一次試試看");
+          }
+        } else {
+          calmMusic.pause();
+          musicButton.classList.remove("playing");
+          musicButton.setAttribute("aria-pressed", "false");
+          musicButton.title = "播放療癒舒緩音樂";
+          showToast("🔇 已暫停舒緩音樂");
+        }
+      });
+    }
+
+    initChat();
+  </script>
+</body>
+</html>

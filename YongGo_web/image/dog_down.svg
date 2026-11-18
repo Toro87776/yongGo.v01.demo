@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+  <defs>
+    <clipPath id="circleClipDown">
+      <circle cx="36" cy="36" r="34"/>
+    </clipPath>
+  </defs>
+  <!-- 粉色珊瑚圓形底圖 -->
+  <circle cx="36" cy="36" r="35" fill="#F9D3CE" stroke="#F19689" stroke-width="2"/>
+  <g clip-path="url(#circleClipDown)">
+    <!-- 地面陰影 -->
+    <ellipse cx="36" cy="58" rx="24" ry="4.5" fill="#F19689" opacity="0.35"/>
+    <!-- 尾巴 -->
+    <path d="M55 46c4-2 6-6 3-9-2 1-3.5 3.5-5 6z" fill="#FDE4CF" stroke="#5A3328" stroke-width="1.6" stroke-linejoin="round"/>
+    <!-- 趴下身軀 (橫向伸展) -->
+    <path d="M20 45c2-6 12-9 24-8 8 .8 13 5.5 12 12-.8 5-6 7-14 7H24c-4 0-6-5-4-11z" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- 前腳向前趴伸 -->
+    <path d="M12 52c0-2 2-3.2 4.5-3.2H26c2 0 3.2 1.2 3.2 3s-1.2 3.2-3.2 3.2H15.5C13 55 12 54 12 52z" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.7"/>
+    <path d="M22 54.5c0-2 2-3 4.2-3h9.5c2 0 3 1.2 3 2.8s-1 3-3 3h-10.5c-2 0-3.2-1-3.2-2.8z" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.7"/>
+    <!-- 後腳收在後方 -->
+    <path d="M46 53c4 0 8 1 9 3.5.6 1.6-1 2.8-3.5 2.8H44z" fill="#FDE4CF" stroke="#5A3328" stroke-width="1.6"/>
+    <!-- 頭部抬起微笑 -->
+    <ellipse cx="27" cy="32" rx="14" ry="12" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.8"/>
+    <!-- 垂耳 -->
+    <path d="M14.5 24c-4 2-5.8 8.5-3 12.5 1.6 2.2 3.8.6 4.5-2.6.7-3.2 0-7.5-1.5-9.9z" fill="#FDE4CF" stroke="#5A3328" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M39.5 24c4 2 5.8 8.5 3 12.5-1.6 2.2-3.8.6-4.5-2.6-.7-3.2 0-7.5 1.5-9.9z" fill="#FDE4CF" stroke="#5A3328" stroke-width="1.7" stroke-linejoin="round"/>
+    <!-- 眼周斑紋 -->
+    <ellipse cx="21.5" cy="29.8" rx="3.4" ry="3.8" fill="#FDE4CF"/>
+    <ellipse cx="32.5" cy="29.8" rx="3.4" ry="3.8" fill="#FDE4CF"/>
+    <!-- 圓眼 -->
+    <circle cx="21.5" cy="30.2" r="2.3" fill="#4A281E"/>
+    <circle cx="20.8" cy="29.4" r="0.8" fill="#FFFFFF"/>
+    <circle cx="32.5" cy="30.2" r="2.3" fill="#4A281E"/>
+    <circle cx="31.8" cy="29.4" r="0.8" fill="#FFFFFF"/>
+    <!-- 珊瑚粉腮紅 -->
+    <ellipse cx="17" cy="34.2" rx="2.8" ry="1.8" fill="#F19689" opacity="0.85"/>
+    <ellipse cx="37" cy="34.2" rx="2.8" ry="1.8" fill="#F19689" opacity="0.85"/>
+    <!-- 鼻子與笑嘴 -->
+    <ellipse cx="27" cy="33.5" rx="2.4" ry="1.7" fill="#5A3328"/>
+    <path d="M23.5 36.5c1.1 1.4 2.5 1.4 3.5.2 1 1.2 2.4 1.2 3.5-.2" fill="none" stroke="#5A3328" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M25.4 37.6c0 1.8.7 2.8 1.6 2.8s1.6-1 1.6-2.8z" fill="#F19689" stroke="#5A3328" stroke-width="1"/>
+  </g>
+</svg>

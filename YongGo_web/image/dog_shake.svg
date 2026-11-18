@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+  <defs>
+    <clipPath id="circleClipShake">
+      <circle cx="36" cy="36" r="34"/>
+    </clipPath>
+  </defs>
+  <!-- 粉色珊瑚圓形底圖 -->
+  <circle cx="36" cy="36" r="35" fill="#F9D3CE" stroke="#F19689" stroke-width="2"/>
+  <g clip-path="url(#circleClipShake)">
+    <!-- 地面陰影 -->
+    <ellipse cx="34" cy="63" rx="17" ry="3.8" fill="#F19689" opacity="0.35"/>
+    <!-- 身體微微朝右側坐姿 -->
+    <path d="M21 44c-2 7-1 15 2 19h19c3-4 3-12 1-19z" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- 後腿 -->
+    <path d="M19 52c-4 2-4 9 0 11h7v-8z" fill="#FDE4CF" stroke="#5A3328" stroke-width="1.7" stroke-linejoin="round"/>
+    <!-- 支撐左前腳 -->
+    <path d="M27 49v12c0 1.4 1 2.2 2.4 2.2h1.2c1.3 0 2.2-.8 2.2-2.2V50" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.6" stroke-linecap="round"/>
+    <!-- 舉起握手的右前腳 -->
+    <path d="M39 48c5-1 10-4 13-8 1.4-1.8 3.6-.5 2.7 1.8-2.2 5-7.5 9.2-14.2 10.2z" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.7" stroke-linejoin="round"/>
+    <!-- 粉色肉球小亮點 & 互動星星 -->
+    <circle cx="53.5" cy="40.5" r="2.2" fill="#F19689"/>
+    <path d="M56 30l1 2.4 2.4 1-2.4 1-1 2.4-1-2.4-2.4-1 2.4-1z" fill="#F19689"/>
+    <!-- 頭部微歪 -->
+    <g transform="rotate(-5 34 29)">
+      <ellipse cx="34" cy="29" rx="14.8" ry="12.6" fill="#FFFFFF" stroke="#5A3328" stroke-width="1.8"/>
+      <path d="M20.5 21c-4.5 2-6.2 9-3.2 13.5 1.8 2.4 4 .8 4.8-2.8.8-3.6 0-8-1.6-10.7z" fill="#FDE4CF" stroke="#5A3328" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M47.5 21c4.5 2 6.2 9 3.2 13.5-1.8 2.4-4 .8-4.8-2.8-.8-3.6 0-8 1.6-10.7z" fill="#FDE4CF" stroke="#5A3328" stroke-width="1.8" stroke-linejoin="round"/>
+      <!-- 開心彎眼 -->
+      <path d="M25.5 27.5c1.2-1.8 3.5-1.8 4.7 0" fill="none" stroke="#4A281E" stroke-width="2" stroke-linecap="round"/>
+      <path d="M37.8 27.5c1.2-1.8 3.5-1.8 4.7 0" fill="none" stroke="#4A281E" stroke-width="2" stroke-linecap="round"/>
+      <!-- 珊瑚粉腮紅 -->
+      <ellipse cx="22.8" cy="31.2" rx="3.2" ry="2" fill="#F19689" opacity="0.85"/>
+      <ellipse cx="45.2" cy="31.2" rx="3.2" ry="2" fill="#F19689" opacity="0.85"/>
+      <!-- 鼻子與笑嘴 -->
+      <ellipse cx="34" cy="30.5" rx="2.6" ry="1.9" fill="#5A3328"/>
+      <path d="M30.2 33.8c1.2 1.6 2.8 1.6 3.8.2 1 1.4 2.6 1.4 3.8-.2" fill="none" stroke="#5A3328" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M32.3 35c0 2 .8 3 1.7 3s1.7-1 1.7-3z" fill="#F19689" stroke="#5A3328" stroke-width="1.1"/>
+    </g>
+  </g>
+</svg>
